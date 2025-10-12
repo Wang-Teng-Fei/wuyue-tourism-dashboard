@@ -1,0 +1,61 @@
+/* 深色主题变量 */
+:root.dark {
+  // ---------- 主色 ----------
+  --primary-color: #00cfc1;
+  --primary-hover-color: #00978f;
+  --primary-disabled-color: #8ad4cf; // 鼠标悬停色，可根据需要调整
+  --hover-bg-color: #303030;
+  --primary-plain-color: #00cfc113;
+  --bg-color-subtle: #2c2c2c;
+
+  // ---------- 背景 ----------
+  --bg-color: #161616;
+  --card-bg-color: #222;
+  --card-bg-color-inner: #242424;
+
+  // ---------- 文字 ----------
+  --text-color: #f5f5f5;
+  --sub-text-color: #c7c7c7;
+  --prompt-text-color: #999999;
+
+  // ---------- 边框/分割线 ----------
+  --border-color: #414141;
+  --divider-color: #2a2a2a;
+
+  // ---------- 高亮按钮 ----------
+  --button-bg: var(--primary-color);
+  --button-text: #ffffff;
+  --button-hover-bg: var(--primary-hover-color);
+
+  // ---------- 普通按钮 ----------
+  --cancel-button-bg: #333;
+  --cancel-button-text: #eee;
+  --cancel-button-hover-bg: #3f3f3f;
+
+  // ---------- 输入框 ----------
+  --input-border: #6e6e6e;
+  --input-bg-color: #313131;
+  --input-text-color: var(--sub-text-color);
+  --placeholder-color: #777;
+
+  // ---------- 表格 ----------
+  --table-row-hover-bg: #2e2e2e;
+  --table-border-color: #696969;
+
+  // ---------- 蒙层 ----------
+  --overlay-color: rgba(0, 0, 0, 0.6);
+
+  // ---------- 状态色 ----------
+  --success-color: #4caf50;
+  --warning-color: #ffc107;
+  --error-color: #ef5350;
+
+  // ---------- 阴影 ----------
+  /* 深色主题的阴影应使用更柔和的“暗灰”层次，而非白色 */
+  --shadow-color: rgba(0, 0, 0, 0.7);
+
+  // ---------- loading ----------
+  --loading-mask-bg: rgba(34, 34, 34, 0.8);
+
+  --disabled-bg-color: rgb(48, 48, 48);
+}

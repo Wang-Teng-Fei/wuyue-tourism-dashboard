@@ -1,0 +1,72 @@
+{
+  "id": "5034785",
+  "name": "wuyue-tourism-dashboard",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "1354559",
+      "name": "山",
+      "font_class": "shan",
+      "unicode": "e63b",
+      "unicode_decimal": 58939
+    },
+    {
+      "icon_id": "2874548",
+      "name": "配置项-1",
+      "font_class": "peizhixiang-",
+      "unicode": "e6a7",
+      "unicode_decimal": 59047
+    },
+    {
+      "icon_id": "8527073",
+      "name": "游客画像",
+      "font_class": "youkehuaxiang",
+      "unicode": "e62b",
+      "unicode_decimal": 58923
+    },
+    {
+      "icon_id": "13489864",
+      "name": "飞线图_图表-飞线图",
+      "font_class": "feixiantu_tubiao-feixiantu",
+      "unicode": "e715",
+      "unicode_decimal": 59157
+    },
+    {
+      "icon_id": "18931498",
+      "name": "管理员卡",
+      "font_class": "guanliyuanka",
+      "unicode": "e6d9",
+      "unicode_decimal": 59097
+    },
+    {
+      "icon_id": "26876071",
+      "name": "收入参数",
+      "font_class": "shourucanshu",
+      "unicode": "ea47",
+      "unicode_decimal": 59975
+    },
+    {
+      "icon_id": "32910906",
+      "name": "AreaChartOutlined",
+      "font_class": "AreaChartOutlined",
+      "unicode": "e673",
+      "unicode_decimal": 58995
+    },
+    {
+      "icon_id": "42197946",
+      "name": "dashboard-2-line",
+      "font_class": "dashboard-2-line",
+      "unicode": "e77c",
+      "unicode_decimal": 59260
+    },
+    {
+      "icon_id": "42557546",
+      "name": "植被",
+      "font_class": "zhibei",
+      "unicode": "e703",
+      "unicode_decimal": 59139
+    }
+  ]
+}

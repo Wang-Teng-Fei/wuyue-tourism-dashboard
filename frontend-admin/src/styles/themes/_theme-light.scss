@@ -1,0 +1,60 @@
+/* 浅色主题变量 */
+:root {
+  // ---------- 主色 ----------
+  --primary-color: #00cfc1;
+  --primary-hover-color: #00978f;
+  --primary-disabled-color: #8ad4cf; // 鼠标悬停色，可根据需要调整
+  --primary-plain-color: #00cfc113;
+  --hover-bg-color: #eeeeee; // 通用悬停背景色
+  --bg-color-subtle: #eeeeee;
+
+  // ---------- 背景 ----------
+  --bg-color: #eeeeee; // 页面整体背景
+  --card-bg-color: #fcfcfc; // 卡片、面板、弹窗背景
+  --card-bg-color-inner: #f8f8f8; /* 子面板 */
+
+  // ---------- 文字 ----------
+  --text-color: rgb(51, 51, 51); // 主文字
+  --sub-text-color: #555555; // 次文字
+  --prompt-text-color: #8d8d8d; // 提示文字
+
+  // ---------- 边框/分割线 ----------
+  --border-color: #d8d8d8; // 默认边框
+  --divider-color: #f0f0f0; // 分割线
+
+  // ---------- 高亮按钮 ----------
+  --button-bg: var(--primary-color);
+  --button-text: #ffffff;
+  --button-hover-bg: var(--primary-hover-color); // hover 色
+
+  // ---------- 普通 按钮 ----------
+  --cancel-button-bg: #f5f5f5;
+  --cancel-button-text: #333;
+  --cancel-button-hover-bg: #f0f0f0; // hover 色
+
+  // ---------- 输入框 ----------
+  --input-border: rgb(172, 172, 172); // 输入框边框
+  --input-bg-color: #ffffff; // 输入框背景
+  --input-text-color: var(--sub-text-color);
+  --placeholder-color: #999999; // 输入框占位文字
+
+  // ---------- 表格 ----------
+  --table-row-hover-bg: #f1f1f1;
+  --table-border-color: #cecece;
+
+  // ---------- 蒙层 ----------
+  --overlay-color: rgba(0, 0, 0, 0.3);
+
+  // ---------- 成功/警告/错误 ----------
+  --success-color: #28a745;
+  --warning-color: #ffc107;
+  --error-color: #dc3545;
+
+  // ---------- 阴影 ----------
+  --shadow-color: rgba(0, 0, 0, 0.2);
+
+  // ---------- loading ----------
+  --loading-mask-bg: rgba(245, 245, 245, 0.8);
+
+  --disabled-bg-color: rgb(235, 235, 235);
+}

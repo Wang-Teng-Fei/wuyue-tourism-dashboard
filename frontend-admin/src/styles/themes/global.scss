@@ -1,0 +1,130 @@
+// 全局样式，引入变量和主题
+@use '@/styles/themes/_variables' as *;
+@use '@/styles/themes/_theme-light' as *;
+@use '@/styles/themes/_theme-dark' as *;
+
+/* 自定义主题变量 */
+// element-plusz主题变量
+:root {
+  /* 主题色（primary） */
+  --el-color-primary: var(--primary-color) !important;
+  --el-bg-color: var(--card-bg-color) !important;
+  --el-text-color-primary: var(--text-color) !important;
+  --el-text-color-regular: var(---sub-text-color) !important; /* 背景色、文本色 */
+  --el-mask-color: var(--loading-mask-bg) !important;
+  // input
+  --el-fill-color-blank: var(--input-bg-color) !important;
+  --el-border-color: var(--input-border) !important;
+  --el-border-color-light: var(--input-border) !important;
+  --el-bg-color-overlay: var(--card-bg-color-inner) !important;
+  --el-fill-color-light: var(--hover-bg-color) !important;
+  --el-input-focus-border-color: var(--primary-color) !important;
+  .el-message-box {
+    --el-messagebox-content-color: var(--text-color) !important;
+  }
+  .el-button {
+    // --el-button-hover-bg-color: var(--cancel-button-bg);
+    // --el-button-bg-color: var(--cancel-button-bg);
+    // --el-button-text-color: var(--cancel-button-text);
+    // --el-button-border-color: var(--border-color);
+    // --el-button-hover-border-color: var(--border-color);
+    // --el-button-hover-bg-color: var(--cancel-button-hover-bg);
+    // --el-button-active-border-color: var(--border-color);
+    // --el-button-active-bg-color: var(--cancel-button-hover-bg);
+  }
+  .el-button--primary {
+    --el-button-bg-color: var(--primary-color);
+    --el-button-border-color: var(--primary-color);
+    --el-button-hover-bg-color: var(--primary-hover-color) !important;
+    --el-button-hover-border-color: transparent !important;
+    // --el-button-border-color: transparent;
+    // --el-button-hover-border-color: transparent;
+    // --el-button-active-border-color: transparent;
+    // --el-button-text-color: var(--button-text);
+    // --el-button-bg-color: var(--primary-color) !important;
+    // --el-button-hover-bg-color: var(--primary-hover-color) !important;
+    --el-button-active-border-color: var(--primary-hover-color) !important;
+    // --el-button-disabled-bg-color: var(--primary-disabled-color) !important;
+    --el-button-active-bg-color: var(--primary-hover-color) !important;
+  }
+  .el-button--primary.is-plain {
+    --el-button-bg-color: var(--primary-plain-color) !important;
+    --el-button-border-color: var(--primary-color) !important;
+    --el-button-text-color: var(--primary-color) !important;
+
+    /* hover 时 */
+    --el-button-hover-bg-color: var(--primary-color) !important;
+    --el-button-hover-text-color: #fff !important;
+    --el-button-hover-border-color: var(--primary-color) !important;
+
+    /* active 时 */
+    --el-button-active-bg-color: var(--primary-hover-color) !important;
+    --el-button-active-text-color: #fff !important;
+    --el-button-active-border-color: var(--primary-hover-color) !important;
+
+    /* disabled 状态 */
+    --el-button-disabled-bg-color: var(--primary-plain-color) !important;
+    --el-button-disabled-text-color: var(--primary-disabled-color) !important;
+    --el-button-disabled-border-color: var(--primary-disabled-color) !important;
+  }
+  .el-input {
+    // --el-input-border-color: var(--input-border);
+    // --el-input-bg-color: var(--input-bg-color);
+    --el-text-color-regular: var(--sub-text-color); /* 背景色、文本色 */
+  }
+  .el-table {
+    --el-table-border-color: var(--table-border-color);
+    --el-table-border: 1px solid var(--table-border-color);
+    --el-table-row-hover-bg-color: var(--table-row-hover-bg);
+    --el-table-header-text-color: var(--text-color);
+  }
+  .el-button--info:not(.is-plain) {
+    --el-button-text-color: var(--cancel-button-text);
+    --el-button-bg-color: var(--cancel-button-bg);
+    --el-button-border-color: transparent;
+    --el-button-hover-bg-color: var(--cancel-button-hover-bg);
+    --el-button-hover-text-color: var(--text-color);
+    --el-button-hover-border-color: transparent;
+    --el-button-active-bg-color: var(--cancel-button-hover-bg);
+    --el-button-active-border-color: transparent;
+  }
+  .el-button--success {
+    // --el-button-hover-text-color: #fff;
+  }
+  .el-pagination {
+    --el-pagination-button-bg-color: var(--card-bg-color);
+  }
+}
+
+.btn-prev:disabled,
+.btn-next:disabled {
+  background-color: var(--loading-mask-bg) !important;
+}
+// button
+/* 保证同时设置 duration / timing / fill-mode */
+:root {
+  --clip-path-old: circle(0% at 100% 0);
+  --clip-path-new: circle(141.4% at 100% 0);
+}
+::view-transition-old(root) {
+  animation: fade-out 1000ms ease both;
+}
+::view-transition-new(root) {
+  animation: fade-in 1000ms ease both;
+}
+@keyframes fade-out {
+  from {
+    clip-path: var(--clip-path-new);
+  }
+  to {
+    clip-path: var(--clip-path-new);
+  }
+}
+@keyframes fade-in {
+  from {
+    clip-path: var(--clip-path-old);
+  }
+  to {
+    clip-path: var(--clip-path-new);
+  }
+}

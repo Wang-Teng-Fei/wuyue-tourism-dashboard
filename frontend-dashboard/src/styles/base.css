@@ -1,0 +1,115 @@
+/* =======================
+   通用 CSS Reset 样式表
+   参考：Eric Meyer Reset + Normalize + 大厂实践
+   ======================= */
+
+/* 1. 解决不同浏览器的基础样式差异 */
+*,
+*::before,
+*::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* 2. HTML5 元素显示为 block */
+article, aside, details, figcaption, figure,
+footer, header, main, nav, section, summary {
+  display: block;
+}
+
+/* 3. 基础字体设置 */
+html {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%; 禁止 iOS 缩放字体
+  -webkit-tap-highlight-color: transparent; /* 去除移动端点击高亮 */
+  scroll-behavior: smooth;
+  user-select: none;
+}
+
+body {
+  line-height: 1.5;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+    'Helvetica Neue', Arial, 'Noto Sans', sans-serif,
+    'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol', 'Noto Color Emoji';
+  background-color: #fff;
+  color: #000;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* 4. 去除列表样式 */
+ul, ol {
+  list-style: none;
+}
+
+/* 5. 去除链接默认样式 */
+a {
+  color: inherit;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+/* 6. 图片 & 媒体默认宽度 */
+img, picture, video, canvas, svg {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  vertical-align: middle;
+  object-fit: cover;
+}
+
+/* 7. 表单元素默认样式统一 */
+input, button, textarea, select {
+  font: inherit;
+  color: inherit;
+  border: none;
+  background: none;
+  outline: none;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+}
+
+/* 提交按钮光标 */
+button, [type="button"], [type="submit"] {
+  cursor: pointer;
+}
+
+/* 禁止表单自动填充背景色 */
+input:-webkit-autofill {
+  box-shadow: 0 0 0 1000px white inset !important;
+}
+
+/* 文本区域可拖动调整大小限制 */
+textarea {
+  resize: vertical;
+}
+
+/* 表格样式清除 */
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+/* 清除默认的引号样式 */
+blockquote, q {
+  quotes: none;
+}
+blockquote::before, blockquote::after,
+q::before, q::after {
+  content: '';
+}
+
+/* 自定义滚动条样式（可选） */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-thumb {
+  background-color: rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-track {
+  background-color: transparent;
+}
