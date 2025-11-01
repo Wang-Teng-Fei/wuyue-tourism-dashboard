@@ -4,8 +4,9 @@ namespace App\Http\Requests\AnnualStats;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Requests\BaseFormRequest;
+use App\Http\Requests\AnnualStats\BaseAnnualStatsRequest;
 
-class VegetationCoverageRequest extends BaseFormRequest
+class VegetationCoverageRequest extends BaseAnnualStatsRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,22 +23,26 @@ class VegetationCoverageRequest extends BaseFormRequest
      */
     public function rules(): array
     {
-        return [
-            'year' => ['required', 'integer', 'min:1'],
-            'vegetation_coverage' => ['required', 'numeric', 'between:0,100'], // 百分比 0~100
+        $parentRules = parent::rules();
+
+        $customRules = [
+            'vegetation_coverage' => 'required|numeric|min:0|max:100', // 0-100%
         ];
+
+        return array_merge($parentRules, $customRules);
     }
 
-    public function messages(): array
+    public function messages()
     {
-        return [
-            'year.required' => '年份必填',
-            'year.integer' => '年份必须是整数',
-            'year.min' => '年份不能小于 1',
+        $parentMessages = parent::messages();
 
-            'vegetation_coverage.required' => '植被覆盖率必填',
-            'vegetation_coverage.numeric' => '植被覆盖率必须是数字',
-            'vegetation_coverage.between' => '植被覆盖率必须在 0~100 之间',
+        $customMessages = [
+            'vegetation_coverage.required' => '植被覆盖率不能为空',
+            'vegetation_coverage.numeric' => '植被覆盖率必须为数字',
+            'vegetation_coverage.min' => '植被覆盖率不能为负数',
+            'vegetation_coverage.max' => '植被覆盖率最大为100%',
         ];
+
+        return array_merge($parentMessages, $customMessages);
     }
 }

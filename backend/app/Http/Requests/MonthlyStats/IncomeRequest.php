@@ -4,8 +4,9 @@ namespace App\Http\Requests\MonthlyStats;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Requests\BaseFormRequest;
+use App\Http\Requests\MonthlyStats\BaseMonthlyStatsRequest;
 
-class IncomeRequest extends BaseFormRequest
+class IncomeRequest extends BaseMonthlyStatsRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -22,32 +23,26 @@ class IncomeRequest extends BaseFormRequest
      */
     public function rules(): array
     {
-        return [
-            'mountain_id' => ['integer', 'exists:mountain_ids,id'],
-            'year' => ['required', 'integer', 'min:1'],
-            'month' => ['required', 'integer', 'min:1', 'max:12'],
-            'income' => ['required', 'numeric', 'min:0'], // 收入 >= 0，可以是小数
+        $parentRules = parent::rules();
+
+        $customRules = [
+            'income' => 'required|numeric|min:0|max:100000000000', // 最大1000亿
         ];
+
+        return array_merge($parentRules, $customRules);
     }
 
-    /**
-     * 自定义错误消息
-     */
-    public function messages(): array
+    public function messages()
     {
-        return [
-            'year.required' => '年份必填',
-            'year.integer' => '年份必须是整数',
-            'year.min' => '年份必须大于 0',
+        $parentMessages = parent::messages();
 
-            'month.required' => '月份必填',
-            'month.integer' => '月份必须是整数',
-            'month.min' => '月份不能小于 1',
-            'month.max' => '月份不能大于 12',
-
-            'income.required' => '收入必填',
-            'income.numeric' => '收入必须是数字',
-            'income.min' => '收入不能小于 0',
+        $customMessages = [
+            'income.required' => '收入不能为空',
+            'income.numeric' => '收入必须为数字',
+            'income.min' => '收入不能为负数',
+            'income.max' => '收入最大为1000亿元',
         ];
+
+        return array_merge($parentMessages, $customMessages);
     }
 }

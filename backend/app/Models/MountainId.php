@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\MonthlyTouristStats;
+use App\Models\MonthlyStats;
 use App\Models\AnnualStats;
 
 class MountainId extends Model
@@ -18,7 +18,7 @@ class MountainId extends Model
     // 山脉的月度统计
     public function monthlyStats()
     {
-        return $this->hasMany(MonthlyTouristStats::class, 'mountain_id', 'id');
+        return $this->hasMany(MonthlyStats::class, 'mountain_id', 'id');
     }
 
     // 山脉的年度统计

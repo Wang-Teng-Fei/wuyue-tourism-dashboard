@@ -1,5 +1,5 @@
-<script setup lang="ts">
-import { reactive, ref } from 'vue'
+<script setup>
+import { reactive, ref, watch } from 'vue'
 import {
   searchAdminsInfoList,
   getAdminsInfoDetail,
@@ -8,7 +8,7 @@ import {
   changeAdminPassword,
   deleteAdmin,
 } from '@/api/admin'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import runRequest from '@/utils/useRequestWrapper'
 import { usePaginationStore } from '@/stores/pagination'
 import { storeToRefs } from 'pinia'
@@ -20,67 +20,15 @@ defineOptions({
   name: 'AdminManagement',
 })
 
-interface AdminDataObj {
-  id: number
-  name: string
-  email: string
-  role: 'admin' | 'super'
-  status: number | string
-  avatar: string
-  editItem?: boolean
-  avatarFile?: File | null
-}
-
-interface AdminListObj {
-  data: AdminDataObj[]
-  current_page?: number | string
-  total?: number | string
-  per_page?: number | string
-  last_page?: number | string
-}
-
-interface AddRuleForm {
-  name: string
-  email: string
-  password: string
-  role: 'admin' | 'super'
-  status: number
-  avatar: File | string
-}
-
-// 管理员信息接口
-interface AdminDetail {
-  id: number | null
-  avatar: string
-  name: string
-  email: string
-  role: 'admin' | 'super'
-  status: 1 | 0
-  last_login_at: string
-}
-
-interface LayoutDataTableWrapperRef {
-  updateData: (row: object) => void
-  cancelEdit: (row: object) => void
-  handleEditClick: (row: object) => void
-  deleteData: (row: object) => void
-}
-
-// 更改密码表单接口
-interface PasswordForm {
-  new_password: string
-  confirm_password: string
-}
-
 const userStore = useUserStore()
 
-const layoutDataTableWrapperRef = ref<LayoutDataTableWrapperRef>()
+const layoutDataTableWrapperRef = ref()
 
 const paginationStore = usePaginationStore()
 const { perPage, page } = storeToRefs(paginationStore)
 const currentPage = ref(page.value) // 记录当前页码
 
-const adminList = ref<AdminListObj>({
+const adminList = ref({
   data: [],
 })
 const isLoading = ref(true)
@@ -91,6 +39,20 @@ const searchData = ref({
   role: '',
   email: '',
 })
+
+// 为数据项添加 editItem 属性
+watch(
+  () => adminList.value.data,
+  (newList) => {
+    if (!Array.isArray(newList)) return
+    newList.forEach((item) => {
+      if (item && typeof item === 'object' && !('editItem' in item)) {
+        item.avatarFile = null
+      }
+    })
+  },
+  { deep: true, immediate: true },
+)
 
 // 搜索
 const handleSearch = async (pageNum = currentPage.value, pageSize = perPage.value) => {
@@ -113,8 +75,8 @@ const handleSearch = async (pageNum = currentPage.value, pageSize = perPage.valu
 handleSearch(page.value, perPage.value)
 
 // 新增表单验证
-const addRuleFormRef = ref<FormInstance>()
-const addRuleForm = reactive<AddRuleForm>({
+const addRuleFormRef = ref()
+const addRuleForm = reactive({
   name: '',
   email: '',
   password: '',
@@ -123,7 +85,25 @@ const addRuleForm = reactive<AddRuleForm>({
   avatar: '',
 })
 
-const addRules = reactive<FormRules<AddRuleForm>>({
+const addRules = reactive({
+  avatar: [
+    {
+      required: true,
+      message: '头像不可为空',
+      trigger: 'blur',
+    },
+    {
+      validator: (rule, value, callback) => {
+        if (!value) {
+          callback('头像不可为空')
+        } else if (!(value instanceof File)) {
+          callback('必须上传图片文件')
+        }
+        callback()
+      },
+      trigger: 'change',
+    },
+  ],
   name: [
     {
       required: true,
@@ -162,6 +142,13 @@ const addRules = reactive<FormRules<AddRuleForm>>({
       trigger: 'change',
     },
   ],
+  status: [
+    {
+      required: true,
+      message: '状态不可为空',
+      trigger: 'change',
+    },
+  ],
 })
 
 // 头像
@@ -172,7 +159,7 @@ const default_avatar = new URL('@/assets/default_avatar.png', import.meta.url).h
 const img_preview = ref('') // 实际存储值的响应式变量
 
 //
-const handleAdd = (bool: boolean) => {
+const handleAdd = (bool) => {
   Object.assign(addRuleForm, {
     name: '',
     email: '',
@@ -185,8 +172,8 @@ const handleAdd = (bool: boolean) => {
 }
 
 // 头像上传处理
-const avatarFile = (event: Event) => {
-  const target = event.target as HTMLInputElement
+const avatarFile = (event) => {
+  const target = event.target
   const files = target.files
 
   if (!files || files.length === 0) {
@@ -203,7 +190,7 @@ const avatarFile = (event: Event) => {
   const reader = new FileReader()
   reader.onload = (e) => {
     const result = e.target?.result
-    img_preview.value = result as string
+    img_preview.value = result
   }
   reader.readAsDataURL(file)
 
@@ -212,7 +199,7 @@ const avatarFile = (event: Event) => {
 }
 
 // 新增
-const addAdminData = async (addFormEl: FormInstance | undefined) => {
+const addAdminData = async (addFormEl) => {
   if (!addFormEl) return
   await addFormEl.validate(async (valid) => {
     if (valid) {
@@ -268,9 +255,9 @@ const addAdminData = async (addFormEl: FormInstance | undefined) => {
 }
 
 // 编辑的头像处理
-const updateAvatarFile = (row: AdminDataObj, index: number) => {
-  const event = window.event as Event
-  const target = event.target as HTMLInputElement
+const updateAvatarFile = (row, index) => {
+  const event = window.event
+  const target = event.target
   const files = target.files
 
   if (!files || files.length === 0) {
@@ -296,7 +283,7 @@ const updateAvatarFile = (row: AdminDataObj, index: number) => {
   // 使用 FileReader 读取文件
   const reader = new FileReader()
   reader.onload = (e) => {
-    const result = e.target?.result as string
+    const result = e.target?.result
     if (result) {
       // 更新行的 avatar 属性
       row.avatar = result
@@ -317,8 +304,7 @@ const updateAvatarFile = (row: AdminDataObj, index: number) => {
 }
 
 // 编辑
-const updateAdminData = async (row: { data: AdminDataObj; index: number }) => {
-  const { data, index } = row
+const updateAdminData = async (data, index, onSuccess) => {
   const formData = new FormData()
   formData.append('name', data.name)
   formData.append('email', data.email)
@@ -343,7 +329,7 @@ const updateAdminData = async (row: { data: AdminDataObj; index: number }) => {
     // 判断是否只有一个编辑项
     const editingItems = adminList.value.data.filter((item) => item.editItem === true)
     const hasOnlyOneEditingItem = editingItems.length === 1
-
+    onSuccess?.()
     if (hasOnlyOneEditingItem) {
       // 如果只有一个编辑项，重新加载数据
       await handleSearch(currentPage.value)
@@ -354,7 +340,7 @@ const updateAdminData = async (row: { data: AdminDataObj; index: number }) => {
 }
 
 // 删除
-const deleteAdminData = async (data: AdminDataObj) => {
+const deleteAdminData = async (data) => {
   await deleteAdmin(data.id)
 
   // 删除后保持在当前页
@@ -364,8 +350,8 @@ const deleteAdminData = async (data: AdminDataObj) => {
   ElMessage.success('删除管理员成功')
 }
 
-const adminDetailDefault = (): AdminDetail => ({
-  id: null,
+const adminDetailDefault = () => ({
+  id: 0,
   name: '',
   email: '',
   role: 'admin',
@@ -375,10 +361,10 @@ const adminDetailDefault = (): AdminDetail => ({
 })
 
 // 管理员详情
-const adminDetail = ref<AdminDetail>(adminDetailDefault())
+const adminDetail = ref(adminDetailDefault())
 
 // 详情弹窗的显示与关闭
-const handleDetailDialogVisible = (value: boolean) => {
+const handleDetailDialogVisible = (value) => {
   // 使用对象解构来重置数据
   setTimeout(() => {
     Object.assign(adminDetail.value, adminDetailDefault())
@@ -386,7 +372,7 @@ const handleDetailDialogVisible = (value: boolean) => {
   detailDialogVisible.value = value
 }
 
-const getAdminDetail = async (admin_id: number) => {
+const getAdminDetail = async (admin_id) => {
   handleDetailDialogVisible(true)
   const res = await getAdminsInfoDetail(admin_id)
   console.log()
@@ -394,12 +380,12 @@ const getAdminDetail = async (admin_id: number) => {
 }
 
 // 格式化角色显示
-const formatRole = (role: string) => {
+const formatRole = (role) => {
   return role === 'super' ? '超级管理员' : '普通管理员'
 }
 
 // 格式化状态显示
-const formatStatus = (status: number) => {
+const formatStatus = (status) => {
   return status === 1 ? '启用' : '禁用'
 }
 
@@ -407,14 +393,14 @@ const formatStatus = (status: number) => {
 const changePasswordVisible = ref(false)
 
 // 更改密码表单
-const passwordFormRef = ref<FormInstance>()
-const passwordForm = reactive<PasswordForm>({
+const passwordFormRef = ref()
+const passwordForm = reactive({
   new_password: '',
   confirm_password: '',
 })
 
 // 更改密码表单验证规则
-const passwordRules = reactive<FormRules<PasswordForm>>({
+const passwordRules = reactive({
   new_password: [
     { required: true, message: '请输入新密码', trigger: 'blur' },
     { min: 6, message: '新密码长度至少为6位', trigger: 'blur' },
@@ -435,7 +421,7 @@ const passwordRules = reactive<FormRules<PasswordForm>>({
 })
 
 // 打开/关闭更改密码弹窗
-const handleChangePassword = (visible: boolean) => {
+const handleChangePassword = (visible) => {
   if (visible && !adminDetail.value?.name) {
     return ElMessage.warning('没有获取到个人信息')
   }
@@ -453,7 +439,7 @@ const handleChangePassword = (visible: boolean) => {
 }
 
 // 提交更改密码
-const submitChangePassword = async (admin_id: number, formEl: FormInstance | undefined) => {
+const submitChangePassword = async (admin_id, formEl) => {
   if (!formEl) return
   await formEl.validate(async (valid) => {
     if (valid) {
@@ -652,7 +638,7 @@ const submitChangePassword = async (admin_id: number, formEl: FormInstance | und
             >
               <el-button
                 type="success"
-                @click="layoutDataTableWrapperRef?.updateData({ data: row, index: $index })"
+                @click="layoutDataTableWrapperRef?.updateData(row, $index)"
                 plain
               >
                 确定
@@ -705,7 +691,10 @@ const submitChangePassword = async (admin_id: number, formEl: FormInstance | und
           label-width="auto"
           class="add_dialog"
         >
-          <el-form-item label="头像">
+          <el-form-item
+            label="头像"
+            prop="avatar"
+          >
             <label class="avatar">
               <input
                 @change="avatarFile($event)"
@@ -932,14 +921,13 @@ const submitChangePassword = async (admin_id: number, formEl: FormInstance | und
 
 <style scoped lang="scss">
 @use '@/styles/themes/_variables.scss' as *;
-.data-table__toolbar {
-}
 // 列表头像
 .data-table__wrapper {
   .el-avatar {
     width: 45px;
     height: 45px;
-    border-radius: 25%;
+    border-radius: $border-radius-sm;
+    border: 1px solid var(--border-color);
   }
   // 是否是自己
   .is_oneself {

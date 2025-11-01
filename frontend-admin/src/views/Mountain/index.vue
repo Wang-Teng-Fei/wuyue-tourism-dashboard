@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { reactive, ref } from 'vue'
 import {
   addMountain,
@@ -7,7 +7,7 @@ import {
   getMountainList,
   getMountainNameList,
 } from '@/api/mountain'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import runRequest from '@/utils/useRequestWrapper'
 import { usePaginationStore } from '@/stores/pagination'
 import { storeToRefs } from 'pinia'
@@ -17,33 +17,11 @@ defineOptions({
   name: 'MountainComponent',
 })
 
-interface MountainData {
-  id: number
-  name?: string
-  province?: string
-  created_at?: string
-  updated_at?: string
-  editItem?: boolean
-}
-
-interface MountainList {
-  data: MountainData[]
-  current_page?: number | string
-  total: number | string
-  per_page?: number | string
-  last_page: number | string
-}
-
-interface AddRuleForm {
-  name: string
-  province: string
-}
-
 const paginationStore = usePaginationStore()
 const { perPage, page } = storeToRefs(paginationStore)
 const currentPage = ref(page.value) // 记录当前页码
 
-const mountainList = ref<MountainList>({ data: [], total: 0, last_page: 0 })
+const mountainList = ref({ data: [], total: 0, last_page: 0 })
 
 const isLoading = ref(true)
 // 新增面版是否显示
@@ -81,23 +59,23 @@ const handleSearch = async (pageNum = page.value, pageSize = perPage.value) => {
 handleSearch()
 
 // 新增表单验证
-const addRuleFormRef = ref<FormInstance>()
-const addRuleForm = reactive<AddRuleForm>({
+const addRuleFormRef = ref()
+const addRuleForm = reactive({
   name: '',
   province: '',
 })
-const addRules = reactive<FormRules<AddRuleForm>>({
+const addRules = reactive({
   name: [{ required: true, message: '山脉名称不可为空', trigger: 'blur' }],
   province: [{ required: true, message: '所属省份不可为空', trigger: 'blur' }],
 })
 
-const handleAdd = (bool: boolean) => {
+const handleAdd = (bool) => {
   Object.assign(addRuleForm, { name: '', province: '' })
   addDialogVisible.value = bool
 }
 
 // 新增山脉 - 通过计算确定页码
-const addMountainData = async (addFormEl: FormInstance | undefined) => {
+const addMountainData = async (addFormEl) => {
   if (!addFormEl) return
   await addFormEl.validate(async (valid) => {
     if (valid) {
@@ -127,18 +105,15 @@ const addMountainData = async (addFormEl: FormInstance | undefined) => {
 }
 
 // 编辑山脉
-const updateMountainData = async (data: MountainData) => {
+const updateMountainData = async (data, index, onSuccess) => {
   await updateMountain(data.id, { name: data.name, province: data.province })
-  mountainList.value.data.forEach((item) => {
-    if (item.id === data.id) {
-      item.editItem = false
-    }
-  })
+  onSuccess?.()
+  mountainList.value.data[index].editItem = false
   ElMessage.success('更新山脉成功')
 }
 
 // 删除山脉，保留当前页码（如最后一页被删光则自动回到上一页）
-const deleteMountainData = async (data: MountainData) => {
+const deleteMountainData = async (data) => {
   await deleteMountain(data.id)
 
   // 记录删除前的当前页数据情况

@@ -1,42 +1,50 @@
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue'
+import { ref, onMounted, onUnmounted } from "vue";
 
-import TitleComponents from '@/components/IndexConponents/TitleComponents.vue'
-import FlylineChart from '@/components/IndexConponents/FlylineChart.vue'
-import TouristNumberStatistics from '@/components/IndexConponents/TouristNumberStatistics.vue'
-import IncomeData from '@/components/IndexConponents/VegetationCoverageRate.vue'
-import TotalCount from '@/components/IndexConponents/TotalCount.vue'
-import HeightStatistics from '@/components/IndexConponents/HeightStatistics.vue'
-import VegetationCoverageRate from '@/components/IndexConponents/IncomeData.vue'
-import { storeToRefs } from 'pinia'
-import { useVisualizationStore } from '@/stores/visualization'
+import TitleComponents from "@/components/IndexConponents/TitleComponents.vue";
+import FlylineChart from "@/components/IndexConponents/FlylineChart.vue";
+import TouristNumberStatistics from "@/components/IndexConponents/TouristNumberStatistics.vue";
+import IncomeData from "@/components/IndexConponents/VegetationCoverageRate.vue";
+import TotalCount from "@/components/IndexConponents/TotalCount.vue";
+import HeightStatistics from "@/components/IndexConponents/HeightStatistics.vue";
+import VegetationCoverageRate from "@/components/IndexConponents/IncomeData.vue";
+import { storeToRefs } from "pinia";
+import { useVisualizationStore } from "@/stores/visualization";
+import { toRef } from "vue";
 
-const visualizationStore = useVisualizationStore()
+const visualizationStore = useVisualizationStore();
+let timer = null;
 
-let timer = null
 onMounted(() => {
-  visualizationStore.fetchVisualizationData() // 初始化请求
+  visualizationStore.fetchVisualizationData(); // 初始化请求
   timer = setInterval(() => {
-    visualizationStore.fetchVisualizationData()
-  }, 2000)
-})
+    visualizationStore.fetchVisualizationData();
+  }, 2000);
+});
 
 onUnmounted(() => {
-  clearInterval(timer) // 卸载组件时清理定时器
-})
+  clearInterval(timer); // 卸载组件时清理定时器
+});
 
 // 从 Pinia store 拿响应式 ref
-const { visualizationData } = storeToRefs(visualizationStore)
-
+const { visualizationData } = storeToRefs(visualizationStore);
 </script>
 
 <template>
-  <div class="body" v-if="visualizationData.id">
+  <div
+    class="body"
+    v-if="visualizationData.id"
+    :style="{
+      background: `#ffffff url(${visualizationData.background_image}) no-repeat bottom center / cover`,
+    }"
+  >
     <div class="data-visualization-home">
       <!-- 头部 -->
       <header>
         <div id="title">
-          <TitleComponents :visualizationData="visualizationData"></TitleComponents>
+          <TitleComponents
+            :visualizationData="visualizationData"
+          ></TitleComponents>
         </div>
       </header>
 
@@ -45,8 +53,13 @@ const { visualizationData } = storeToRefs(visualizationStore)
         <!-- 左边 -->
         <div class="c-left">
           <!-- 左上 -->
-          <div ref="left-map-scroll-board" class="c-left-top">
-            <TouristNumberStatistics :visualizationData="visualizationData"></TouristNumberStatistics>
+          <div
+            ref="left-map-scroll-board"
+            class="c-left-top"
+          >
+            <TouristNumberStatistics
+              :visualizationData="visualizationData"
+            ></TouristNumberStatistics>
           </div>
 
           <!-- 左下 -->
@@ -55,10 +68,8 @@ const { visualizationData } = storeToRefs(visualizationStore)
           </div>
         </div>
 
-
         <!-- 中间 -->
         <div class="c-center">
-
           <!-- 飞线图 -->
           <div class="map">
             <FlylineChart :visualizationData="visualizationData"></FlylineChart>
@@ -72,18 +83,25 @@ const { visualizationData } = storeToRefs(visualizationStore)
         <div class="c-right">
           <!-- 右上 -->
           <div class="c-right-top">
-            <VegetationCoverageRate :visualizationData="visualizationData"></VegetationCoverageRate>
+            <VegetationCoverageRate
+              :visualizationData="visualizationData"
+            ></VegetationCoverageRate>
           </div>
           <!-- 右下 -->
           <div class="c-right-bottom">
-            <HeightStatistics :visualizationData="visualizationData"></HeightStatistics>
+            <HeightStatistics
+              :visualizationData="visualizationData"
+            ></HeightStatistics>
           </div>
         </div>
       </main>
     </div>
   </div>
 
-  <div class="loading" v-if="!visualizationData.id">
+  <div
+    class="loading"
+    v-if="!visualizationData.id"
+  >
     <div class="loader">
       <div class="box box0">
         <div></div>
@@ -119,20 +137,21 @@ const { visualizationData } = storeToRefs(visualizationStore)
 </template>
 
 <style scoped lang="less">
-@import url('@/styles/common.less');
+@import url("@/styles/common.less");
 
 // 背景图片
 .body {
   position: relative;
   width: 100dvw;
   height: 100dvh;
-  background: rgb(255, 255, 255) url('@/assets/home_bgc1.jpeg') no-repeat bottom center/cover;
+  background: rgb(255, 255, 255) url("@/assets/home_bgc1.jpeg") no-repeat bottom
+    center/cover;
   // background-blend-mode: overlay;
   // background-blend-mode: darken; /* 融合模式 */
 }
 
 .loading {
-  @bgc: #050E2D;
+  @bgc: #050e2d;
 
   position: absolute;
   top: 0;
@@ -141,7 +160,6 @@ const { visualizationData } = storeToRefs(visualizationStore)
   height: 100dvh;
   background-color: @bgc;
   z-index: 100;
-
 
   .prompt {
     position: absolute;
@@ -152,7 +170,8 @@ const { visualizationData } = storeToRefs(visualizationStore)
     font-weight: 700;
     font-family: "微软雅黑" sans-serif;
     color: #fff;
-    text-shadow: 2px 2px 0 @bgc, -2px -2px 0 @bgc, 2px -2px 0 @bgc, -2px 2px 0 @bgc;
+    text-shadow: 2px 2px 0 @bgc, -2px -2px 0 @bgc, 2px -2px 0 @bgc,
+      -2px 2px 0 @bgc;
     z-index: 100;
   }
 
@@ -209,11 +228,18 @@ const { visualizationData } = storeToRefs(visualizationStore)
   }
 
   .loader .ground div {
-    transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px) translateZ(100px) scale(0);
+    transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px)
+      translateZ(100px) scale(0);
     width: 200px;
     height: 200px;
     background: var(--primary);
-    background: linear-gradient(45deg, var(--primary) 0%, var(--primary) 50%, var(--primary-light) 50%, var(--primary-light) 100%);
+    background: linear-gradient(
+      45deg,
+      var(--primary) 0%,
+      var(--primary) 50%,
+      var(--primary-light) 50%,
+      var(--primary-light) 100%
+    );
     transform-style: preserve-3d;
     -webkit-animation: ground var(--duration) linear forwards infinite;
     animation: ground var(--duration) linear forwards infinite;
@@ -232,7 +258,8 @@ const { visualizationData } = storeToRefs(visualizationStore)
     opacity: 0;
     background: linear-gradient(var(--primary), var(--primary-rgba));
     position: absolute;
-    transform: rotateX(var(--rx)) rotateY(var(--ry)) translate(var(--x), var(--y)) translateZ(var(--z));
+    transform: rotateX(var(--rx)) rotateY(var(--ry))
+      translate(var(--x), var(--y)) translateZ(var(--z));
     -webkit-animation: ground-shine var(--duration) linear forwards infinite;
     animation: ground-shine var(--duration) linear forwards infinite;
   }
@@ -277,7 +304,8 @@ const { visualizationData } = storeToRefs(visualizationStore)
     background-color: inherit;
     width: inherit;
     height: inherit;
-    transform: rotateX(var(--rx)) rotateY(var(--ry)) translate(var(--x), var(--y)) translateZ(var(--z));
+    transform: rotateX(var(--rx)) rotateY(var(--ry))
+      translate(var(--x), var(--y)) translateZ(var(--z));
     filter: brightness(var(--b, 1.2));
   }
 
@@ -922,41 +950,44 @@ const { visualizationData } = storeToRefs(visualizationStore)
   }
 
   @-webkit-keyframes ground {
-
     0%,
     65% {
-      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px) translateZ(100px) scale(0);
+      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px)
+        translateZ(100px) scale(0);
     }
 
     75%,
     90% {
-      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px) translateZ(100px) scale(1);
+      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px)
+        translateZ(100px) scale(1);
     }
 
     100% {
-      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px) translateZ(100px) scale(0);
+      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px)
+        translateZ(100px) scale(0);
     }
   }
 
   @keyframes ground {
-
     0%,
     65% {
-      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px) translateZ(100px) scale(0);
+      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px)
+        translateZ(100px) scale(0);
     }
 
     75%,
     90% {
-      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px) translateZ(100px) scale(1);
+      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px)
+        translateZ(100px) scale(1);
     }
 
     100% {
-      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px) translateZ(100px) scale(0);
+      transform: rotateX(90deg) rotateY(0deg) translate(-48px, -120px)
+        translateZ(100px) scale(0);
     }
   }
 
   @-webkit-keyframes ground-shine {
-
     0%,
     70% {
       opacity: 0;
@@ -973,7 +1004,6 @@ const { visualizationData } = storeToRefs(visualizationStore)
   }
 
   @keyframes ground-shine {
-
     0%,
     70% {
       opacity: 0;
@@ -990,7 +1020,6 @@ const { visualizationData } = storeToRefs(visualizationStore)
   }
 
   @-webkit-keyframes mask {
-
     0%,
     65% {
       opacity: 0;
@@ -1003,7 +1032,6 @@ const { visualizationData } = storeToRefs(visualizationStore)
   }
 
   @keyframes mask {
-
     0%,
     65% {
       opacity: 0;

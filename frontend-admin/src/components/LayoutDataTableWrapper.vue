@@ -1,35 +1,38 @@
-<script setup lang="ts">
+<script setup>
 import { ref, watch, toRefs } from 'vue'
 import { usePaginationStore } from '@/stores/pagination'
 import { storeToRefs } from 'pinia'
-import type { FormInstance } from 'element-plus'
-import type { DataItem, DataList } from '@/types/layoutDataTableWrapper'
 
 defineOptions({
   name: 'LayoutDataTableWrapper',
 })
 
-// 定义组件 props 的类型
-const props = defineProps<{
-  dataList: DataList<DataItem>
-  addDialogVisible: boolean
-  isLoading: boolean
-  addDataDialogTitle: string
-}>()
+// 定义组件 props
+const props = defineProps({
+  dataList: {
+    type: Object,
+    default: () => ({}),
+  },
+  addDialogVisible: {
+    type: Boolean,
+    default: false,
+  },
+  isLoading: {
+    type: Boolean,
+    default: false,
+  },
+  addDataDialogTitle: {
+    type: String,
+    default: '',
+  },
+})
 
-// 定义组件可以触发的事件及参数类型
-const emit = defineEmits<{
-  // (e: 'changeAddDialogVisible', value: boolean): void
-  (e: 'handleAdd', value: boolean): void
-  (e: 'getDataListData', pageNum: number): void
-  (e: 'addData', formEl: FormInstance | undefined): void
-  (e: 'updateData', data: DataItem): void
-  (e: 'deleteData', data: DataItem): void
-}>()
+// 定义组件可以触发的事件
+const emit = defineEmits(['handleAdd', 'getDataListData', 'addData', 'updateData', 'deleteData'])
 
 const { dataList, addDialogVisible, isLoading, addDataDialogTitle } = toRefs(props)
 // 在现有变量后面添加
-const originalDataMap = ref<Map<number, DataItem>>(new Map())
+const originalDataMap = ref(new Map())
 const { page, perPage } = storeToRefs(usePaginationStore())
 
 // 加载动画 SVG
@@ -45,7 +48,7 @@ const svg = `
 `
 
 // 动态行类名，用于添加动画
-const rowClassName = ({ rowIndex }: { rowIndex: number }) => {
+const rowClassName = ({ rowIndex }) => {
   return `row-animate row-animate-${rowIndex}`
 }
 
@@ -61,7 +64,6 @@ watch(
     if (!Array.isArray(newList)) return
     newList.forEach((item) => {
       if (item && typeof item === 'object' && !('editItem' in item)) {
-        item.avatarFile = ''
         item.editItem = false
       }
     })
@@ -70,42 +72,43 @@ watch(
 )
 
 // 开启或关闭弹窗
-const handleAdd = (bool: boolean) => {
+const handleAdd = (bool) => {
   emit('handleAdd', bool)
 }
 
 // 新增数据
-const addData = (formEl: FormInstance | undefined) => {
-  emit('addData', formEl)
+const addData = () => {
+  emit('addData')
 }
 
 // 添加取消编辑方法
-const cancelEdit = (data: DataItem) => {
-  const originalData = originalDataMap.value.get(data.id as number)
+const cancelEdit = (data) => {
+  const originalData = originalDataMap.value.get(data.id)
   if (originalData) {
     // 恢复原始数据
     Object.assign(data, originalData)
-    originalDataMap.value.delete(data.id as number)
+    originalDataMap.value.delete(data.id)
   }
   data.editItem = false
 }
 
 // 编辑按钮点击事件
-const handleEditClick = (data: DataItem) => {
+const handleEditClick = (data) => {
   // 进入编辑模式时备份数据
-  originalDataMap.value.set(data.id as number, { ...data })
+  originalDataMap.value.set(data.id, JSON.parse(JSON.stringify({ ...data })))
   data.editItem = true
 }
 
-// 编辑数据
-const updateData = async (data: DataItem) => {
-  // 编辑成功后清除备份
-  originalDataMap.value.delete(data.id as number)
-  emit('updateData', data)
+// 编辑数据 - 添加成功回调参数
+const updateData = async (data, index) => {
+  emit('updateData', data, index, () => {
+    // 成功回调：清除备份
+    originalDataMap.value.delete(data.id)
+  })
 }
 
 // 删除数据
-const deleteData = async (data: DataItem) => {
+const deleteData = async (data) => {
   emit('deleteData', data)
 }
 
@@ -117,6 +120,7 @@ defineExpose({
   handleEditClick,
   updateData,
   deleteData,
+  originalDataMap, // 暴露备份映射，方便父组件操作
 })
 </script>
 
@@ -150,7 +154,7 @@ defineExpose({
         :data="dataList.data"
         max-height="400px"
         :row-class-name="rowClassName"
-        :row-key="(row: { id: string }) => row.id"
+        :row-key="(row) => row.id"
       >
         <el-table-column
           fixed="left"
@@ -171,14 +175,14 @@ defineExpose({
             class="column-operation"
             label="操作"
           >
-            <template #default="{ row }">
+            <template #default="{ row, $index }">
               <div
                 v-if="row.editItem"
                 class="column-operation"
               >
                 <el-button
                   type="success"
-                  @click="updateData(row)"
+                  @click="updateData(row, $index)"
                   plain
                 >
                   确定
@@ -357,6 +361,14 @@ defineExpose({
     .el-table__header {
       height: 60px;
       font-size: $font-size-xl;
+
+      .cell {
+        font-size: $font-size-xl;
+      }
+    }
+
+    .cell {
+      font-size: $font-size-base;
     }
 
     .column-operation {
@@ -365,7 +377,6 @@ defineExpose({
       align-items: center;
       align-content: center;
       flex-wrap: wrap;
-
       button {
         margin: 5px 20px;
         margin-left: 0px;

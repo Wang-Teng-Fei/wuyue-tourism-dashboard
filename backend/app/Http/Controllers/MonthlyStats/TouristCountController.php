@@ -77,7 +77,7 @@ class TouristCountController extends BaseController
     /**
      * 更新游客数量统计数据
      */
-    public function updateTouristCount(Request $request, int $tourist_id): JsonResponse
+    public function updateTouristCount(TouristCountRequest $request, int $tourist_id): JsonResponse
     {
         $tourist_count = $request->input('tourist_count');
         $result = $this->service->update($tourist_id, $tourist_count);

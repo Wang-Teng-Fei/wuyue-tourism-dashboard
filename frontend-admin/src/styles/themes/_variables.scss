@@ -3,30 +3,41 @@
    ================================ */
 
 /* ---------- 字体 ---------- */
-$font-family-base: 'Helvetica Neue', Arial, sans-serif; // 默认字体
-$font-size-base: 14px; // 基础字体大小
-$font-size-lg: 16px; // 大号文字
-$font-size-sm: 12px; // 小号文字
-$font-size-xl: 18px; // 超大号文字
-$font-size-xs: 10px; // 超小号文字
+// 基准字体大小配置
+$base-font-size: 16px !default;
+$base-font-size-tablet: 15px !default;
+$base-font-size-mobile: 14px !default;
+$base-font-size-small: 13px !default;
+
+// REM 转换函数（自动适配响应式）
+@function rem($px-value) {
+  @return calc($px-value / $base-font-size) * 1rem;
+}
+
+// 字体配置
+$font-family-base: 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+$font-size-base: rem(14px);
+$font-size-lg: rem(16px);
+$font-size-sm: rem(12px);
+$font-size-xl: rem(18px);
+$font-size-xs: rem(10px);
 $font-weight-normal: 400;
 $font-weight-bold: 700;
 
 /* ---------- 间距 ---------- */
-$spacing-xs: 4px;
-$spacing-sm: 8px;
-$spacing-md: 16px;
-$spacing-lg: 24px;
-$spacing-xl: 32px;
+$spacing-xs: rem(4px);
+$spacing-sm: rem(8px);
+$spacing-md: rem(16px);
+$spacing-lg: rem(24px);
+$spacing-xl: rem(32px);
 
 // 标题基础样式
-$font-family-base: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-$h1-size: 40px; // 40px
-$h2-size: 32px; // 32px
-$h3-size: 28px; // 28px
-$h4-size: 24px; // 24px
-$h5-size: 20px; // 20px
-$h6-size: 16px; // 16px
+$h1-size: rem(40px); // 2.5rem
+$h2-size: rem(32px); // 2rem
+$h3-size: rem(28px); // 1.75rem
+$h4-size: rem(24px); // 1.5rem
+$h5-size: rem(20px); // 1.25rem
+$h6-size: rem(16px); // 1rem
 
 $h-line-height: 1.2;
 $h-color: #333;

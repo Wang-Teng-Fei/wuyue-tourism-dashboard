@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -9,7 +9,7 @@ defineOptions({
 const router = useRouter()
 
 // DOM 元素引用
-const ghostEyesRef = ref<HTMLDivElement | null>(null)
+const ghostEyesRef = ref(null)
 
 // 页面尺寸
 let pageX = window.innerWidth
@@ -28,7 +28,7 @@ const updatePageSize = () => {
 window.addEventListener('resize', updatePageSize)
 
 // 鼠标移动处理
-const handleMouseMove = (event: MouseEvent) => {
+const handleMouseMove = (event) => {
   mouseX = event.pageX
   mouseY = event.pageY
 

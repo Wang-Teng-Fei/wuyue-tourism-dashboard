@@ -24,16 +24,23 @@ class VisualizationConfigRequest extends BaseFormRequest
     public function rules(): array
     {
         $visualization_id = $this->route('visualization_id');
+        $isUpdate = $this->isMethod('PATCH') || $this->isMethod('PUT');
 
-        return [
+        $rules = [
             'name' => ['required', 'string', 'max:100', Rule::unique('visualization_configs', 'name')->ignore($visualization_id, 'id')],
             'flyline_chart_id' => ['required', 'integer', 'exists:flyline_charts,id'],
             'mountain_ids' => ['required', 'string', 'json', 'min:1'],
             'year' => ['required', 'integer', 'min:1000', 'max:9999'],
-            'background _image' => ['nullable', 'image', 'max:51200'],
+            'background_image' => ['nullable', 'image', 'max:51200'],
             'config_json' => ['nullable', 'string', 'json'],
-            'is_active' => ['sometimes', 'boolean'],
         ];
+
+        // 只有在更新时才验证 is_active
+        if ($isUpdate) {
+            $rules['is_active'] = ['required', 'boolean'];
+        }
+
+        return $rules;
     }
 
     public function messages(): array
@@ -58,6 +65,7 @@ class VisualizationConfigRequest extends BaseFormRequest
             'background_image.max' => '背景图片不能超过 50MB',
             'config_json.string' => '配置 JSON 必须是字符串',
             'config_json.json' => '配置 JSON 格式不正确',
+            'is_active.required' => '启用状态必填',
             'is_active.boolean' => '启用状态必须是布尔值',
         ];
     }

@@ -2,11 +2,11 @@
 
 namespace App\Http\Services\MonthlyStats;
 
-use App\Models\MonthlyTouristStats;
+use App\Models\MonthlyStats;
 use App\Models\MountainId;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-class MonthlyStatService
+class MonthlyStatservice
 {
     protected string $valueField; // 例如：tourist_count / income
     protected string $hideField;  // 对应需要隐藏的字段
@@ -22,7 +22,7 @@ class MonthlyStatService
      */
     public function getAll(int $perPage = 10): LengthAwarePaginator
     {
-        $list = MonthlyTouristStats::with('mountain')
+        $list = MonthlyStats::with('mountain')
             ->whereNotNull($this->valueField)
             ->orderByDesc('year')
             ->orderByDesc('month')
@@ -53,7 +53,7 @@ class MonthlyStatService
     public function get(?string $mountain_name = null, ?int $year = null, int $per_page = 10, int $page = 1)
     {
         // 构建查询
-        $query = MonthlyTouristStats::with('mountain')
+        $query = MonthlyStats::with('mountain')
             ->whereNotNull($this->valueField)
             ->when($year, fn($q) => $q->where('year', $year));
 
@@ -99,7 +99,7 @@ class MonthlyStatService
             return null;
         }
 
-        $record = MonthlyTouristStats::where('mountain_id', $mountain_id)
+        $record = MonthlyStats::where('mountain_id', $mountain_id)
             ->where('year', $year)
             ->where('month', $month)
             ->first();
@@ -114,7 +114,7 @@ class MonthlyStatService
             return 'exists';
         }
 
-        $newRecord = MonthlyTouristStats::create([
+        $newRecord = MonthlyStats::create([
             'mountain_id' => $mountain_id,
             'year' => $year,
             'month' => $month,
@@ -132,7 +132,7 @@ class MonthlyStatService
      */
     public function update(int $id, $value)
     {
-        $record = MonthlyTouristStats::find($id);
+        $record = MonthlyStats::find($id);
         if (!$record || is_null($record->{$this->valueField})) {
             return null;
         }
@@ -153,7 +153,7 @@ class MonthlyStatService
      */
     public function delete(int $id): bool|null
     {
-        $record = MonthlyTouristStats::find($id);
+        $record = MonthlyStats::find($id);
         if (!$record || is_null($record->{$this->valueField})) {
             return null;
         }

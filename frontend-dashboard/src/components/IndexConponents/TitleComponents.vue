@@ -1,29 +1,38 @@
 <script setup>
-import { ref, computed, onMounted, onUnmounted, defineProps } from 'vue'
+import { ref, computed, onMounted, onUnmounted, defineProps, toRef } from "vue";
 
 const props = defineProps({
   visualizationData: {
     type: Object,
     required: true,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
 // 标题
-const title = computed(() => props.visualizationData.name)
+const title = computed(() => props.visualizationData.config_json.title);
 
-const config_json = props.visualizationData.config_json
+const config_json = props.visualizationData.config_json;
 
+const year = ref(props.visualizationData.year);
 </script>
 
 <template>
-  <dv-decoration8 :color="['aqua', 'aqua']" class="border" />
+  <dv-decoration8
+    :color="['aqua', 'aqua']"
+    class="border"
+  />
   <span class="t">
     <span>{{ title }}</span>
     <dv-decoration6 :color="config_json.borderColor" />
   </span>
+  <span class="year">日期：{{ year }}</span>
   <!-- <dv-decoration5 class="border" :dur="3" style=""></dv-decoration5> -->
-  <dv-decoration8 :color="['aqua', 'aqua']" class="border right" :reverse="true" />
+  <dv-decoration8
+    :color="['aqua', 'aqua']"
+    class="border right"
+    :reverse="true"
+  />
 </template>
 
 <style scoped lang="less">
@@ -47,6 +56,14 @@ span.t {
     z-index: 1;
     opacity: 0.3;
   }
+}
+
+span.year {
+  position: absolute;
+  right: 5%;
+  top: 0%;
+  font-size: 20px;
+  transform: translateX(-100%);
 }
 
 :deep(.border) {

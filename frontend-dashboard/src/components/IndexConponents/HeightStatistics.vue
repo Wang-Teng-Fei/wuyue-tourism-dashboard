@@ -1,54 +1,59 @@
 <script setup>
-import { reactive, defineProps, watch, computed } from 'vue'
+import { reactive, defineProps, watch, computed } from "vue";
 
 // props 定义
 const props = defineProps({
   visualizationData: {
     type: Object,
-    default: () => ({})
-  }
-})
+    default: () => ({}),
+  },
+});
 
-const config_json = props.visualizationData.config_json
+const config_json = props.visualizationData.config_json;
 
 // 安全取值
-const annualStats = computed(() => props.visualizationData?.annualStats ?? [])
+const annualStats = computed(() => props.visualizationData?.annualStats ?? []);
 
 // 计算山的数据
 const mountainData = computed(() =>
-  annualStats.value.map(item => ({
-    name: item?.mountain_name || '未知',
-    value: item?.mountain_annual_stats?.height || 0,
-  })).sort((a, b) => a.value - b.value)
-)
-console.log(mountainData.value)
+  annualStats.value
+    .map((item) => ({
+      name: item?.mountain_name || "未知",
+      value: item?.mountain_annual_stats?.height || 0,
+    }))
+    .sort((a, b) => a.value - b.value)
+);
+console.log(mountainData.value);
 // 核心配置
 const config = reactive({
   fontSize: 12,
-  columnColor: '#0099ff9d',
+  columnColor: "#0099ff9d",
   sort: false,
-  data: [],   // 初始为空，后面同步
+  data: [], // 初始为空，后面同步
   img: [],
   showValue: true,
-})
+});
 
 // 同步数据
-watch(mountainData, (newVal) => {
-  config.data = [...newVal]
-}, { immediate: true })
+watch(
+  mountainData,
+  (newVal) => {
+    config.data = [...newVal];
+  },
+  { immediate: true }
+);
 
 // 模拟新增数据
 const addData = () => {
   config.data.push({
     name: `新增${Math.floor(Math.random() * 129) + 1}`,
     value: Math.floor(Math.random() * 129) + 1,
-  })
+  });
 
   // 假设你有个图片
   // config.img.push(require('@/assets/top7.png'))
-}
+};
 </script>
-
 
 <template>
   <dv-border-box6 :color="config_json.borderColor">

@@ -4,27 +4,15 @@ import { useThemesStore } from '@/stores/themesStore'
 
 const themesStore = useThemesStore()
 
-const isTheme = ref<boolean>(themesStore.theme)
+const isTheme = ref(themesStore.theme)
 
-interface event {
-  clientX: number
-  clientY: number
-}
-
-const toggleTheme = (event: event, isTheme: boolean) =>
+const toggleTheme = (event, isTheme) =>
   themesStore.toggleTheme(!isTheme, event.clientX, event.clientY)
 </script>
 
 <template>
-  <label
-    class="switch"
-    @click="toggleTheme($event, isTheme)"
-  >
-    <input
-      type="checkbox"
-      @keydown.prevent
-      v-model="isTheme"
-    />
+  <label class="switch" @click="toggleTheme($event, isTheme)">
+    <input type="checkbox" @keydown.prevent v-model="isTheme" />
     <span class="slider"></span>
   </label>
 </template>

@@ -69,7 +69,7 @@ class VegetationCoverageController extends BaseController
     /**
      * 更新植被覆盖率
      */
-    public function updateVegetationCoverage(Request $request, int $coverageId): JsonResponse
+    public function updateVegetationCoverage(VegetationCoverageRequest $request, int $coverageId): JsonResponse
     {
         $result = $this->service->update('vegetation_coverage', $coverageId, $request->input('vegetation_coverage'));
 

@@ -19,9 +19,40 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   color: var(--text-color);
-  font-size: $font-size-base;
+  font-size: $base-font-size;
   font-family: '微软雅黑', Arial, sans-serif;
 }
+
+html {
+  // 默认桌面端
+  font-size: $base-font-size;
+
+  // 大屏设备
+  @media (min-width: 1920px) {
+    font-size: 18px; // 大屏稍微放大
+  }
+
+  // 平板端
+  @media (max-width: $breakpoint-lg) {
+    font-size: $base-font-size-tablet;
+  }
+
+  // 移动端
+  @media (max-width: $breakpoint-md) {
+    font-size: $base-font-size-mobile;
+  }
+
+  // 小屏移动端
+  @media (max-width: $breakpoint-sm) {
+    font-size: $base-font-size-small;
+  }
+
+  // 超小屏
+  @media (max-width: $breakpoint-xs) {
+    font-size: 12px;
+  }
+}
+
 /* 3. 链接样式 */
 a {
   color: var(--sub-text-color);
@@ -61,7 +92,7 @@ select {
   outline: none;
   border: none;
   background: none;
-  background-color: var(--sub-text-color);
+  background-color: var(--input-bg-color);
 }
 
 /* 去掉 number input 的上下箭头 */
@@ -88,10 +119,24 @@ textarea {
   resize: none; /* 禁止拖拽改变大小，可选 */
 }
 
-/* 9. 隐藏滚动条（可选） */
+/* 9. 滚动条 */
 ::-webkit-scrollbar {
-  width: 0px;
-  height: 0px;
+  width: 5px;
+  height: 5px;
+  background-color: var(--card-bg-color-inner);
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: var(--border-color);
+  border-radius: 100px;
+}
+
+::-webkit-scrollbar-track {
+  background-color: var(--card-bg-color-inner);
+  border-radius: 100px;
+}
+::-webkit-scrollbar-corner {
+  background-color: transparent;
 }
 
 @font-face {

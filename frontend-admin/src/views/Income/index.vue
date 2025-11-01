@@ -1,49 +1,22 @@
-<script setup lang="ts">
+<script setup>
 import { reactive, ref } from 'vue'
 import { searchMountainNameList } from '@/api/mountain'
 import { getIncomeMountainYearList, addIncome, updateIncome, deleteIncome } from '@/api/income'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import runRequest from '@/utils/useRequestWrapper'
 import { usePaginationStore } from '@/stores/pagination'
 import { storeToRefs } from 'pinia'
 import LayoutDataTableWrapper from '@/components/LayoutDataTableWrapper.vue'
-import type { MountainData } from '@/types/mountain'
 
 defineOptions({
   name: 'IncomeComponent',
 })
 
-interface IncomeDataObj {
-  id: number
-  year?: number
-  month?: number
-  income?: string | number
-  mountain?: MountainData
-  created_at?: string
-  updated_at?: string
-  editItem?: boolean
-}
-
-interface IncomeListObj {
-  data: IncomeDataObj[]
-  current_page?: number | string
-  total?: number | string
-  per_page?: number | string
-  last_page?: number | string
-}
-
-interface AddRuleForm {
-  mountain_id: number | string
-  year: string
-  month: number
-  income: number
-}
-
 const paginationStore = usePaginationStore()
 const { perPage, page } = storeToRefs(paginationStore)
 const currentPage = ref(page.value) // 记录当前页码
 
-const incomeList = ref<IncomeListObj>({
+const incomeList = ref({
   data: [],
 })
 const isLoading = ref(true)
@@ -78,15 +51,15 @@ const handleSearch = async (pageNum = currentPage.value, pageSize = perPage.valu
 handleSearch()
 
 // 新增表单验证
-const addRuleFormRef = ref<FormInstance>()
-const addRuleForm = reactive<AddRuleForm>({
+const addRuleFormRef = ref()
+const addRuleForm = reactive({
   year: String(new Date().getFullYear()),
   month: 1,
   income: 0,
   mountain_id: '',
 })
 
-const addRules = reactive<FormRules<AddRuleForm>>({
+const addRules = reactive({
   year: [
     {
       required: true,
@@ -117,7 +90,7 @@ const addRules = reactive<FormRules<AddRuleForm>>({
   ],
 })
 
-const handleAdd = (bool: boolean) => {
+const handleAdd = (bool) => {
   Object.assign(addRuleForm, {
     mountain_id: '',
     year: String(new Date().getFullYear()),
@@ -128,13 +101,7 @@ const handleAdd = (bool: boolean) => {
 }
 
 // 山脉名称选择器
-const mountainNameList = ref<
-  {
-    id: number
-    name: string
-    preview: string
-  }[]
->([])
+const mountainNameList = ref([])
 const mountainNameSelectFocus = async () => {
   console.log('focus事件触发 - 加载所有数据')
   const res = await runRequest(() => searchMountainNameList(''))
@@ -143,7 +110,7 @@ const mountainNameSelectFocus = async () => {
 }
 
 // filter-method 事件 - 实时搜索
-const mountainNameSelectFilter = async (query: string) => {
+const mountainNameSelectFilter = async (query) => {
   console.log('filter-method事件触发 - 搜索:', query)
   const res = await runRequest(() => searchMountainNameList(query))
   if (!res) return
@@ -151,7 +118,7 @@ const mountainNameSelectFilter = async (query: string) => {
 }
 
 // 新增
-const addIncomeData = async (addFormEl: FormInstance | undefined) => {
+const addIncomeData = async (addFormEl) => {
   if (!addFormEl) return
   await addFormEl.validate(async (valid) => {
     if (valid) {
@@ -174,7 +141,7 @@ const addIncomeData = async (addFormEl: FormInstance | undefined) => {
 }
 
 // 编辑
-const updateIncomeData = async (data: IncomeDataObj) => {
+const updateIncomeData = async (data, index, onSuccess) => {
   await runRequest(() =>
     updateIncome(data.id, {
       year: data.year,
@@ -183,19 +150,14 @@ const updateIncomeData = async (data: IncomeDataObj) => {
       mountain_id: data?.mountain?.id,
     }),
   )
-  incomeList.value.data.forEach((item) => {
-    if (item.id === data.id) {
-      if (item.income) {
-        item.income = Number(item.income).toFixed(2)
-      }
-      item.editItem = false
-    }
-  })
+  onSuccess?.()
+  incomeList.value.data[index].income = Number(data.income).toFixed(2)
+  incomeList.value.data[index].editItem = false
   ElMessage.success('更新收入数据成功')
 }
 
 // 删除
-const deleteIncomeData = async (data: IncomeDataObj) => {
+const deleteIncomeData = async (data) => {
   await runRequest(() => deleteIncome(data.id))
 
   // 删除后保持在当前页

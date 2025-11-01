@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { reactive, ref } from 'vue'
 import { searchMountainNameList } from '@/api/mountain'
 import {
@@ -7,46 +7,21 @@ import {
   updateMountainHeight,
   deleteMountainHeight,
 } from '@/api/mountain-height'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import runRequest from '@/utils/useRequestWrapper'
 import { usePaginationStore } from '@/stores/pagination'
 import { storeToRefs } from 'pinia'
 import LayoutDataTableWrapper from '@/components/LayoutDataTableWrapper.vue'
-import type { MountainData } from '@/types/mountain'
 
 defineOptions({
   name: 'MountainHeight',
 })
 
-interface MountainHeightDataObj {
-  id: number
-  year?: number
-  height?: string | number
-  mountain?: MountainData
-  created_at?: string
-  updated_at?: string
-  editItem?: boolean
-}
-
-interface MountainHeightListObj {
-  data: MountainHeightDataObj[]
-  current_page?: number | string
-  total?: number | string
-  per_page?: number | string
-  last_page?: number | string
-}
-
-interface AddRuleForm {
-  mountain_id: number | string
-  year: string
-  height: number
-}
-
 const paginationStore = usePaginationStore()
 const { perPage, page } = storeToRefs(paginationStore)
 const currentPage = ref(page.value) // 记录当前页码
 
-const mountainHeightList = ref<MountainHeightListObj>({
+const mountainHeightList = ref({
   data: [],
 })
 const isLoading = ref(true)
@@ -81,14 +56,14 @@ const handleSearch = async (pageNum = currentPage.value, pageSize = perPage.valu
 handleSearch()
 
 // 新增表单验证
-const addRuleFormRef = ref<FormInstance>()
-const addRuleForm = reactive<AddRuleForm>({
+const addRuleFormRef = ref()
+const addRuleForm = reactive({
   year: String(new Date().getFullYear()),
   height: 0,
   mountain_id: '',
 })
 
-const addRules = reactive<FormRules<AddRuleForm>>({
+const addRules = reactive({
   year: [
     {
       required: true,
@@ -118,7 +93,7 @@ const addRules = reactive<FormRules<AddRuleForm>>({
   ],
 })
 
-const handleAdd = (bool: boolean) => {
+const handleAdd = (bool) => {
   Object.assign(addRuleForm, {
     mountain_id: '',
     year: String(new Date().getFullYear()),
@@ -128,22 +103,16 @@ const handleAdd = (bool: boolean) => {
 }
 
 // 山脉名称选择器
-const mountainNameList = ref<
-  {
-    id: number
-    name: string
-    preview: string
-  }[]
->([])
+const mountainNameList = ref([])
 const mountainNameSelectFocus = async () => {
   console.log('focus事件触发 - 加载所有数据')
-  const res = await runRequest(() => searchMountainNameList(''))
+  const res = await runRequest(() => searchMountainNameList())
   if (!res) return
   mountainNameList.value = res.data
 }
 
 // filter-method 事件 - 实时搜索
-const mountainNameSelectFilter = async (query: string) => {
+const mountainNameSelectFilter = async (query) => {
   console.log('filter-method事件触发 - 搜索:', query)
   const res = await runRequest(() => searchMountainNameList(query))
   if (!res) return
@@ -151,13 +120,13 @@ const mountainNameSelectFilter = async (query: string) => {
 }
 
 // 格式化高度显示，保留两位小数
-const formatHeight = (height: string | number) => {
+const formatHeight = (height) => {
   if (!height && height !== 0) return '0.00'
   return parseFloat(height.toString()).toFixed(2)
 }
 
 // 新增
-const addMountainHeightData = async (addFormEl: FormInstance | undefined) => {
+const addMountainHeightData = async (addFormEl) => {
   if (!addFormEl) return
   await addFormEl.validate(async (valid) => {
     if (valid) {
@@ -182,7 +151,7 @@ const addMountainHeightData = async (addFormEl: FormInstance | undefined) => {
 }
 
 // 编辑
-const updateMountainHeightData = async (data: MountainHeightDataObj) => {
+const updateMountainHeightData = async (data, index, onSuccess) => {
   await runRequest(() =>
     updateMountainHeight(data.id, {
       year: data.year,
@@ -190,20 +159,17 @@ const updateMountainHeightData = async (data: MountainHeightDataObj) => {
       mountain_id: data?.mountain?.id,
     }),
   )
-  mountainHeightList.value.data.forEach((item) => {
-    if (item.id === data.id) {
-      // 格式化高度显示
-      if (item.height) {
-        item.height = formatHeight(item.height)
-      }
-      item.editItem = false
-    }
-  })
+  onSuccess?.()
+  if (data.height) {
+    console.log(index)
+    mountainHeightList.value.data[index].editItem = false
+    mountainHeightList.value.data[index].height = formatHeight(data.height)
+  }
   ElMessage.success('更新山脉高度成功')
 }
 
 // 删除
-const deleteMountainHeightData = async (data: MountainHeightDataObj) => {
+const deleteMountainHeightData = async (data) => {
   await runRequest(() => deleteMountainHeight(data.id))
 
   // 删除后保持在当前页

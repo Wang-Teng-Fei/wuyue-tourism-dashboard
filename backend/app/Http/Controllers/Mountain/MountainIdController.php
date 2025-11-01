@@ -37,6 +37,8 @@ class MountainIdController extends BaseController
         $mountainList = MountainId::select('id', 'name')->get();
         return $this->apiResponse200($mountainList);
     }
+
+
     /**
      * 关键字搜索山脉名称列表（支持模糊搜索，不分页）
      * 可传入 ?name=关键词

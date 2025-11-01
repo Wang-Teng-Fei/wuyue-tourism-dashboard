@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import ToggleTheme from '@/components/ToggleTheme.vue'
 import { useUserStore } from '@/stores/userStore'
 import { storeToRefs } from 'pinia'
@@ -6,11 +6,8 @@ import { computed, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { logoutAdmin } from '@/api/admin'
 import { ElMessage, ElMessageBox } from 'element-plus'
-import type { FormInstance, FormRules } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { updateAdmonInfo } from '@/api/admin'
-import type { Ref } from 'vue'
-import type { UserInfo } from '@/types/user'
 import runRequest from '@/utils/useRequestWrapper'
 
 defineOptions({
@@ -21,25 +18,18 @@ const route = useRoute()
 const title = computed(() => route?.meta?.title)
 
 const userStore = useUserStore()
-const { userInfo } = storeToRefs(useUserStore()) as {
-  userInfo: Ref<UserInfo>
-}
+const { userInfo } = storeToRefs(useUserStore())
 
-// 👇 明确类型，userInfo 是 Ref<UserInfo>
-
-/**
- * 编辑管理员信息
- */
 // 默认头像
 const default_avatar = new URL('@/assets/default_avatar.png', import.meta.url).href
-
-const ruleFormRef = ref<FormInstance>()
-const ruleForm = reactive<RuleForm>({
+const avatar = ref(userInfo.value.avatar)
+const ruleFormRef = ref()
+const ruleForm = reactive({
   name: userInfo.value.name || '',
   email: userInfo.value.email || '',
 })
 
-const rules = reactive<FormRules<RuleForm>>({
+const rules = reactive({
   name: [
     { required: true, message: '姓名不可为空', trigger: 'blur' },
     { min: 2, message: '姓名至少两位数', trigger: 'blur' },
@@ -51,17 +41,17 @@ const rules = reactive<FormRules<RuleForm>>({
 })
 
 // 处理图片
-const img_preview = computed<string>({
-  get: () => userInfo.value?.avatar || default_avatar,
+const img_preview = computed({
+  get: () => avatar.value || default_avatar,
   set: (value) => {
-    userInfo.value.avatar = value
+    avatar.value = value
   },
 })
 
-const img_file = ref<File | null>(null)
-const avatarFile = (event: Event) => {
+const img_file = ref(null)
+const avatarFile = (event) => {
   // 1. 获取 input 元素
-  const target = event.target as HTMLInputElement
+  const target = event.target
   const files = target.files
 
   if (!files || files.length === 0) {
@@ -75,17 +65,15 @@ const avatarFile = (event: Event) => {
   const reader = new FileReader()
   reader.onload = (e) => {
     const result = e.target?.result
-    img_preview.value = result as string
+    img_preview.value = result
   }
   reader.readAsDataURL(file)
 }
 
 const editProfileVisible = ref(false)
-interface RuleForm {
-  name: string
-  email: string
-}
-function editProfile(bool: boolean) {
+
+// 编辑管理员弹窗控制
+function editProfile(bool) {
   setTimeout(() => {
     Object.assign(ruleForm, {
       name: userInfo.value.name || '',
@@ -93,11 +81,12 @@ function editProfile(bool: boolean) {
     })
     ruleFormRef.value?.clearValidate()
   }, 1000)
+  if (!bool) avatar.value = userInfo.value.avatar
   editProfileVisible.value = bool
 }
 
 // 提交管理员信息
-const subAdminInfo = async (formEl: FormInstance | undefined) => {
+const subAdminInfo = async (formEl) => {
   if (!formEl) return
 
   const formData = new FormData()
@@ -110,7 +99,7 @@ const subAdminInfo = async (formEl: FormInstance | undefined) => {
     formData.append('avatar', img_file.value)
   }
 
-  formEl.validate(async (valid: boolean) => {
+  formEl.validate(async (valid) => {
     console.log(valid)
     if (valid) {
       const res = await runRequest(() => updateAdmonInfo(formData))
@@ -157,7 +146,7 @@ function logout() {
         <div class="user-card">
           <div class="user-info">
             <img
-              :src="userInfo.avatar || default_avatar"
+              :src="avatar || default_avatar"
               alt="头像"
               class="avatar"
             />
@@ -186,7 +175,7 @@ function logout() {
       <div class="admin-info">
         <div class="avatar">
           <img
-            :src="userInfo.avatar || default_avatar"
+            :src="avatar || default_avatar"
             alt="头像"
           />
         </div>
@@ -390,7 +379,7 @@ function logout() {
           .btn {
             flex: 1;
             padding: 6px 10px;
-            font-size: 0.9rem;
+            font-size: $font-size-sm;
             border-radius: 6px;
             border: none;
             cursor: pointer;

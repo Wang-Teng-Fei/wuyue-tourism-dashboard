@@ -23,4 +23,10 @@ class VisualizationConfig extends Model
     {
         return $this->belongsTo(FlylineChart::class, 'flyline_chart_id');
     }
+
+    public function mountains()
+    {
+        return MountainId::whereIn('id', $this->mountain_ids ?: []);
+    }
+
 }

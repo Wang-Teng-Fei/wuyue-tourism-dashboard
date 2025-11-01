@@ -75,7 +75,7 @@ class IncomeController extends BaseController
     /**
      * 更新收入统计数据
      */
-    public function updateIncome(Request $request, int $income_id): JsonResponse
+    public function updateIncome(IncomeRequest $request, int $income_id): JsonResponse
     {
         $income = $request->input('income');
         $result = $this->service->update($income_id, $income);

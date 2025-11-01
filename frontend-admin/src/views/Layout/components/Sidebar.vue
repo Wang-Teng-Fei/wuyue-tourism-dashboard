@@ -1,7 +1,5 @@
-<script setup lang="ts">
+<script setup>
 import { useRouter } from 'vue-router'
-import type { RouteRecordRaw } from 'vue-router'
-// import component from 'element-plus/es/components/tree-select/src/tree-select-option.mjs'
 import { useUserStore } from '@/stores/userStore'
 
 defineOptions({
@@ -12,7 +10,7 @@ const router = useRouter()
 const userStore = useUserStore()
 
 // 从 router 获取 layout 子路由
-const layoutRoute = router.options.routes.find((r) => r.name === 'layout') as RouteRecordRaw
+const layoutRoute = router.options.routes.find((r) => r.name === 'layout')
 const menuRoutes =
   layoutRoute?.children
     ?.filter((item) => {
@@ -23,17 +21,18 @@ const menuRoutes =
       }
     }) // 先过滤
     ?.map((item) => {
-      const newItem: any = { ...item }
+      const newItem = { ...item }
       newItem.index = item.name
       if (item.children) {
-        newItem.children = item.children.map((child: any) => ({
+        newItem.children = item.children.map((child) => ({
           ...child,
           index: child.name,
         }))
       }
       return newItem
     }) || []
-function handleMenuSelect(index: string) {
+
+function handleMenuSelect(index) {
   // 点击菜单，通过 name 跳转
   router.push({ name: index })
 }

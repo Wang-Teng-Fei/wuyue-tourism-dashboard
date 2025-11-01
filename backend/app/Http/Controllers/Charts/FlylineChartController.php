@@ -11,15 +11,27 @@ use Illuminate\Http\Request;
 //  飞线图管理控制器
 class FlylineChartController extends BaseController
 {
-//    获取飞线图名称列表
-    public function getFlylineChartsNameList()
+    /**
+     * 关键字搜索飞线图名称列表（支持模糊搜索，不分页）
+     * 可传入 ?name=关键词
+     */
+    public function searchFlylineChartsNameList(Request $request)
     {
-        $flylineChart = new FlylineChart();
+        $keyword = $request->input('flyline_name'); // 搜索关键字
 
-        $result = $flylineChart->select('id', 'name', 'description')->get();
-//        $result = $flylineChart->where('id', 1)->select('id', 'name', 'description')->get();
+        $query = FlylineChart::select('id', 'name', 'description');
 
-        return $this->apiResponse200($result);
+        // 如果有搜索关键字，执行模糊匹配（名称或描述）
+        if (!empty($keyword)) {
+            $query->where(function ($q) use ($keyword) {
+                $q->where('name', 'like', "%{$keyword}%")
+                    ->orWhere('description', 'like', "%{$keyword}%");
+            });
+        }
+
+        $flylineChartList = $query->get();
+
+        return $this->apiResponse200($flylineChartList);
     }
 
 // 获取飞线图列表

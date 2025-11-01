@@ -4,8 +4,9 @@ namespace App\Http\Requests\MonthlyStats;
 
 use Illuminate\Foundation\Http\FormRequest;
 use App\Http\Requests\BaseFormRequest;
+use App\Http\Requests\MonthlyStats\BaseMonthlyStatsRequest;
 
-class TouristCountRequest extends BaseFormRequest
+class TouristCountRequest extends BaseMonthlyStatsRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -20,33 +21,29 @@ class TouristCountRequest extends BaseFormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
+
     public function rules(): array
     {
-        return [
-            'mountain_id' => ['integer', 'exists:mountain_ids,id'],
-            'year' => ['required', 'integer', 'min:1'],
-            'month' => ['required', 'integer', 'min:1', 'max:12'],
-            'tourist_count' => ['required', 'integer', 'min:0'], // 游客数量可为 0
+        $parentRules = parent::rules();
+
+        $customRules = [
+            'tourist_count' => 'required|integer|min:0|max:100000000', // 最大1亿
         ];
+
+        return array_merge($parentRules, $customRules);
     }
-    /**
-     * 自定义错误消息
-     */
-    public function messages(): array
+
+    public function messages()
     {
-        return [
-            'year.required' => '年份必填',
-            'year.integer' => '年份必须是整数',
-            'year.min' => '年份必须大于 0',
+        $parentMessages = parent::messages();
 
-            'month.required' => '月份必填',
-            'month.integer' => '月份必须是整数',
-            'month.min' => '月份不能小于 1',
-            'month.max' => '月份不能大于 12',
-
-            'tourist_count.required' => '游客数量必填',
-            'tourist_count.integer' => '游客数量必须是整数',
-            'tourist_count.min' => '游客数量不能小于 0',
+        $customMessages = [
+            'tourist_count.required' => '游客数量不能为空',
+            'tourist_count.integer' => '游客数量必须为整数',
+            'tourist_count.min' => '游客数量不能为负数',
+            'tourist_count.max' => '游客数量不能超过1亿',
         ];
+
+        return array_merge($parentMessages, $customMessages);
     }
 }

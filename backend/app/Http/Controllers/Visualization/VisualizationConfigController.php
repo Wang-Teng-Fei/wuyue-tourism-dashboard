@@ -6,7 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Http\Requests\Visualization\VisualizationConfigRequest;
 use App\Models\AnnualStats;
 use App\Models\FlylineChart;
-use App\Models\MonthlyTouristStats;
+use App\Models\MonthlyStats;
 use App\Models\MountainId;
 use App\Models\VisualizationConfig;
 use Illuminate\Http\Request;
@@ -39,7 +39,7 @@ class VisualizationConfigController extends BaseController
 
             $monthlyStats[] = [
                 'mountain_name' => $mountain->name,
-                'mountain_monthly_stats' => MonthlyTouristStats::where('mountain_id', $mountainId)
+                'mountain_monthly_stats' => MonthlyStats::where('mountain_id', $mountainId)
                     ->where('year', $year)
                     ->get()
                     ->makeHidden('mountain_id')
@@ -67,6 +67,7 @@ class VisualizationConfigController extends BaseController
         $response = [
             'id' => $visualizationConfig->id,
             'name' => $visualizationConfig->name,
+            'year' => $visualizationConfig->year,
             'flyline_chart' => $visualizationConfig->flylineChart,
             'background_image' => $visualizationConfig->background_image
                 ? asset($visualizationConfig->background_image)
@@ -95,9 +96,14 @@ class VisualizationConfigController extends BaseController
             $mountain_ids = is_array($item->mountain_ids) ? $item->mountain_ids : json_decode($item->mountain_ids);
             $item->flyline_chart_name = $item->flylineChart->name;
             $item->mountain_info = MountainId::whereIn('id', $mountain_ids)->select(['id', 'name', 'province'])->get();
+            $item->flyline_chart = [
+                'id' => $item->flylineChart['id'],
+                'name' => $item->flylineChart['name'],
+            ];
             unset($item->flylineChart);
-            unset($item->flyline_chart_id);
+            unset($item->flyline_chart_name);
             unset($item->mountain_ids);
+            unset($item->flyline_chart_id);
             if ($item->background_image) {
                 $item->background_image = asset($item->background_image);
             }
@@ -138,7 +144,12 @@ class VisualizationConfigController extends BaseController
             if (!empty($item->background_image)) {
                 $item->background_image = asset($item->background_image);
             }
-
+            $item->flyline_chart = [
+                'id' => $item->flylineChart['id'],
+                'name' => $item->flylineChart['name'],
+            ];
+            unset($item->flylineChart);
+            unset($item->flyline_chart_name);
             unset($item->mountain_ids);
             unset($item->flyline_chart_id);
 
@@ -172,7 +183,7 @@ class VisualizationConfigController extends BaseController
 
             $monthlyStats[] = [
                 'mountain_name' => $mountain->name,
-                'mountain_monthly_stats' => MonthlyTouristStats::where('mountain_id', $mountainId)
+                'mountain_monthly_stats' => MonthlyStats::where('mountain_id', $mountainId)
                     ->where('year', $year)
                     ->get()
                     ->makeHidden('mountain_id')
@@ -200,6 +211,7 @@ class VisualizationConfigController extends BaseController
         $response = [
             'id' => $visualization_id,
             'name' => $visualizationConfig->name,
+            'year' => $visualizationConfig->year,
             'flyline_chart' => $visualizationConfig->flylineChart,
             'background_image' => $visualizationConfig->background_image
                 ? asset($visualizationConfig->background_image)
@@ -226,7 +238,10 @@ class VisualizationConfigController extends BaseController
             $data['background_image'] = '/storage/' . $backgroundImagePath;
         }
 
-        $result = VisualizationConfig::create($data);
+        $result = VisualizationConfig::create([
+            ...$data,
+            'is_active' => 0, // 新增时默认不激活
+        ]);
 
         $result['flyline_chart_name'] = FlylineChart::find($result['flyline_chart_id'])->name;
 
@@ -250,32 +265,38 @@ class VisualizationConfigController extends BaseController
     public function updateVisualizationConfig(VisualizationConfigRequest $request, $visualization_id)
     {
         $visualizationConfig = VisualizationConfig::find($visualization_id);
-
-        $fullPath = public_path($visualizationConfig->background_image);
-        if (file_exists($fullPath)) {
-            // 删除文件
-            unlink($fullPath);
-        }
-
-        if (!$visualizationConfig) {
-            return $this->apiResponse404();
-        }
-
         $data = $request->validated();
 
+
         // 处理主图上传
+        $backgroundImagePath = $visualizationConfig->background_image;
         if ($request->hasFile('background_image')) {
+            $fullPath = public_path($visualizationConfig->background_image);
+            if (file_exists($fullPath)) {
+                // 删除文件
+                unlink($fullPath);
+            }
+
+            if (!$visualizationConfig) {
+                return $this->apiResponse404();
+            }
+
             $backgroundImagePath = $request->file('background_image')->store('visualizations', 'public');
             $data['background_image'] = '/storage/' . $backgroundImagePath;
         }
 
+
         $visualizationConfig->update($data);
 
+        // 将其他所有配置设为非激活
+        if($data['is_active']) {
+            VisualizationConfig::where('is_active', 1)->update(['is_active' => 0]);
+        }
+
+        // 激活当前配置
+        VisualizationConfig::where('id', $visualization_id)->update(['is_active' => $data['is_active']]);
+
         $result = VisualizationConfig::find($visualization_id);
-
-        $result['flyline_chart_name'] = FlylineChart::find($result['flyline_chart_id'])->name;
-
-        $result['background_image'] = asset('/storage/' . $backgroundImagePath);
 
         $mountainIds = $result->mountain_ids;
         $mountainIds = is_array($mountainIds) ? $mountainIds : json_decode($mountainIds);
@@ -285,6 +306,8 @@ class VisualizationConfigController extends BaseController
 
 //      返回给前端
         $result['mountain_names'] = $mountainNames;
+
+        $result['flyline_chart_name'] = FlylineChart::find($result['flyline_chart_id'])->name;
 
         $result['background_image'] = asset('/storage/' . $backgroundImagePath);
 

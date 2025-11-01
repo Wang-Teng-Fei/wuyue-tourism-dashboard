@@ -1,7 +1,6 @@
-<script setup lang="ts">
+<script setup>
 import { reactive, ref, defineOptions } from 'vue'
 import ToggleTheme from '@/components/ToggleTheme.vue'
-import type { FormInstance, FormRules } from 'element-plus'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { loginAdmin } from '@/api/admin'
 import { useUserStore } from '@/stores/userStore'
@@ -21,22 +20,18 @@ const mountains = [
 
 // 忘记密码
 const forgotPassword = () => {
-  ElMessageBox.alert('找回密码懒得做，服了你了，密码都能忘记，去联系超级管理员！！！', {
+  ElMessageBox.alert('why？？？ 密码都能忘？自己联系超级管理员', '本座懒得做这个功能', {
     confirmButtonText: '知道了',
   })
 }
 
 // 登录表单校验
-interface RuleForm {
-  email: string
-  password: string
-}
-const ruleFormRef = ref<FormInstance>()
-const ruleForm = reactive<RuleForm>({
+const ruleFormRef = ref()
+const ruleForm = reactive({
   email: 'admin02@wuyue.com',
   password: 'admin02_123456',
 })
-const rules = reactive<FormRules<RuleForm>>({
+const rules = reactive({
   email: [
     { required: true, message: '邮箱不能为空', trigger: 'blur' },
     { type: 'email', message: '请输入正确的邮箱地址', trigger: 'blur' },
@@ -51,9 +46,9 @@ const rules = reactive<FormRules<RuleForm>>({
 // 登录判断
 const userStore = useUserStore()
 const router = useRouter()
-const submitForm = async (formEl: FormInstance | undefined) => {
+const submitForm = async (formEl) => {
   if (!formEl) return
-  await formEl.validate(async (valid: boolean) => {
+  await formEl.validate(async (valid) => {
     if (valid) {
       const result = await loginAdmin(ruleForm)
       userStore.setUserInfo(result.data)
@@ -97,7 +92,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         class="form"
         novalidate
       >
-        <p class="form-title">欢迎登录您的账户</p>
+        <h2 class="form-title">欢迎登录您的账户</h2>
         <el-form-item
           class="input-container"
           prop="email"
@@ -234,7 +229,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
       .form-title {
         margin-bottom: 25px;
-        font-size: 35px;
         line-height: 1.5;
         font-weight: 700;
         text-align: center;
@@ -251,7 +245,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         input {
           padding: 16px;
           padding-right: 30px;
-          font-size: 18px;
+          font-size: $font-size-xl;
           line-height: 1.5;
           width: 100%;
           border-radius: $border-radius-md;
@@ -300,10 +294,10 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         padding: 14px 20px;
         background-color: var(--primary-color);
         color: var(--button-text);
-        font-size: 18px;
-        line-height: 1.25;
+        font-size: $font-size-xl;
         font-weight: 500;
         width: 100%;
+        height: 15%;
         border-radius: $border-radius-md;
         transition: all $transition-fast;
 
@@ -323,7 +317,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 
       .forgot-password {
         color: var(--prompt-text-color);
-        font-size: 14px;
+        font-size: $font-size-base;
         line-height: 1.5;
         text-align: center;
 

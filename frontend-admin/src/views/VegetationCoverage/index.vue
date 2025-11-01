@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import { reactive, ref } from 'vue'
 import { searchMountainNameList } from '@/api/mountain'
 import {
@@ -7,46 +7,21 @@ import {
   updateVegetationCoverage,
   deleteVegetationCoverage,
 } from '@/api/vegetation-coverage'
-import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
+import { ElMessage } from 'element-plus'
 import runRequest from '@/utils/useRequestWrapper'
 import { usePaginationStore } from '@/stores/pagination'
 import { storeToRefs } from 'pinia'
 import LayoutDataTableWrapper from '@/components/LayoutDataTableWrapper.vue'
-import type { MountainData } from '@/types/mountain'
 
 defineOptions({
   name: 'VegetationCoverage',
 })
 
-interface VegetationCoverageDataObj {
-  id: number
-  year?: number
-  vegetation_coverage?: string | number
-  mountain?: MountainData
-  created_at?: string
-  updated_at?: string
-  editItem?: boolean
-}
-
-interface VegetationCoverageListObj {
-  data: VegetationCoverageDataObj[]
-  current_page?: number | string
-  total?: number | string
-  per_page?: number | string
-  last_page?: number | string
-}
-
-interface AddRuleForm {
-  mountain_id: number | string
-  year: string
-  vegetation_coverage: number
-}
-
 const paginationStore = usePaginationStore()
 const { perPage, page } = storeToRefs(paginationStore)
 const currentPage = ref(page.value) // 记录当前页码
 
-const vegetationCoverageList = ref<VegetationCoverageListObj>({
+const vegetationCoverageList = ref({
   data: [],
 })
 const isLoading = ref(true)
@@ -81,14 +56,14 @@ const handleSearch = async (pageNum = currentPage.value, pageSize = perPage.valu
 handleSearch()
 
 // 新增表单验证
-const addRuleFormRef = ref<FormInstance>()
-const addRuleForm = reactive<AddRuleForm>({
+const addRuleFormRef = ref()
+const addRuleForm = reactive({
   year: String(new Date().getFullYear()),
   vegetation_coverage: 0,
   mountain_id: '',
 })
 
-const addRules = reactive<FormRules<AddRuleForm>>({
+const addRules = reactive({
   year: [
     {
       required: true,
@@ -119,7 +94,7 @@ const addRules = reactive<FormRules<AddRuleForm>>({
   ],
 })
 
-const handleAdd = (bool: boolean) => {
+const handleAdd = (bool) => {
   Object.assign(addRuleForm, {
     mountain_id: '',
     year: String(new Date().getFullYear()),
@@ -129,13 +104,7 @@ const handleAdd = (bool: boolean) => {
 }
 
 // 山脉名称选择器
-const mountainNameList = ref<
-  {
-    id: number
-    name: string
-    preview: string
-  }[]
->([])
+const mountainNameList = ref([])
 const mountainNameSelectFocus = async () => {
   console.log('focus事件触发 - 加载所有数据')
   const res = await runRequest(() => searchMountainNameList(''))
@@ -144,7 +113,7 @@ const mountainNameSelectFocus = async () => {
 }
 
 // filter-method 事件 - 实时搜索
-const mountainNameSelectFilter = async (query: string) => {
+const mountainNameSelectFilter = async (query) => {
   console.log('filter-method事件触发 - 搜索:', query)
   const res = await runRequest(() => searchMountainNameList(query))
   if (!res) return
@@ -152,13 +121,13 @@ const mountainNameSelectFilter = async (query: string) => {
 }
 
 // 格式化植被覆盖率显示，保留两位小数并添加百分比
-const formatCoverage = (coverage: string | number) => {
+const formatCoverage = (coverage) => {
   if (!coverage && coverage !== 0) return '0.00%'
   return parseFloat(coverage.toString()).toFixed(2) + '%'
 }
 
 // 新增
-const addVegetationCoverageData = async (addFormEl: FormInstance | undefined) => {
+const addVegetationCoverageData = async (addFormEl) => {
   if (!addFormEl) return
   await addFormEl.validate(async (valid) => {
     if (valid) {
@@ -183,7 +152,7 @@ const addVegetationCoverageData = async (addFormEl: FormInstance | undefined) =>
 }
 
 // 编辑
-const updateVegetationCoverageData = async (data: VegetationCoverageDataObj) => {
+const updateVegetationCoverageData = async (data, index, onSuccess) => {
   await runRequest(() =>
     updateVegetationCoverage(data.id, {
       year: data.year,
@@ -191,16 +160,16 @@ const updateVegetationCoverageData = async (data: VegetationCoverageDataObj) => 
       mountain_id: data?.mountain?.id,
     }),
   )
-  vegetationCoverageList.value.data.forEach((item) => {
-    if (item.id === data.id) {
-      item.editItem = false
-    }
-  })
+  vegetationCoverageList.value.data[index].vegetation_coverage = Number(
+    data.vegetation_coverage,
+  )?.toFixed(2)
+  vegetationCoverageList.value.data[index].editItem = false
+  onSuccess?.()
   ElMessage.success('更新植被覆盖率成功')
 }
 
 // 删除
-const deleteVegetationCoverageData = async (data: VegetationCoverageDataObj) => {
+const deleteVegetationCoverageData = async (data) => {
   await runRequest(() => deleteVegetationCoverage(data.id))
 
   // 删除后保持在当前页

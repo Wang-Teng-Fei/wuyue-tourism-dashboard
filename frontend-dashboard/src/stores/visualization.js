@@ -1,45 +1,65 @@
-import { ref, computed } from 'vue'
-import { defineStore } from 'pinia'
-import { getVisualizationData } from '@/api/visualication'
+import { ref, computed } from "vue";
+import { defineStore } from "pinia";
+import { getVisualizationData } from "@/api/visualication";
 
-export const useVisualizationStore = defineStore('visualization', () => {
+export const useVisualizationStore = defineStore("visualization", () => {
   // 可视化数据
-  const visualizationData = ref({})
+  const visualizationData = ref({});
 
+  const requestLock = ref(false);
   // 获取可视化数据
   const fetchVisualizationData = async () => {
-    const res = await getVisualizationData()
-    visualizationData.value = res.data
+    try {
+      // 锁检查
+      if (requestLock.value) return;
 
-    // 解析 config_json
-    let configJson = typeof visualizationData.value.config_json === 'string'
-      ? JSON.parse(visualizationData.value.config_json)
-      : visualizationData.value.config_json ?? {}
+      console.log("开始请求数据...");
+      requestLock.value = true;
 
-    // 处理数组型字段
-    const borderColor = typeof configJson.borderColor === 'string'
-      ? JSON.parse(configJson.borderColor.replace(/'/g, '"'))
-      : configJson.borderColor ?? ['#4fd2dd', '#235fa7']
+      const res = await getVisualizationData();
+      visualizationData.value = res.data;
 
-    const echartsAnimationTime = Number(configJson.echartsAnimationTime) || 1500
+      // 解析 config_json
+      let configJson =
+        typeof visualizationData.value.config_json === "string"
+          ? JSON.parse(visualizationData.value.config_json)
+          : visualizationData.value.config_json ?? {};
 
-    const echartsWuYueColor = typeof configJson.echartsWuYueColor === 'string'
-      ? JSON.parse(configJson.echartsWuYueColor.replace(/'/g, '"'))
-      : configJson.echartsWuYueColor ?? []
+      // 默认边框
+      const borderColor =
+        typeof configJson.borderColor === "string"
+          ? JSON.parse(configJson.borderColor.replace(/'/g, '"'))
+          : configJson.borderColor ?? ["#4fd2dd", "#235fa7"];
 
-    // 合并默认值
-    configJson = {
-      ...configJson, // 原有字段
-      borderColor,
-      echartsAnimationTime,
-      echartsWuYueColor
+      // 默认动画时间
+      const echartsAnimationTime =
+        Number(configJson.echartsAnimationTime) || 1500;
+
+      // 默认颜色数组
+      const echartsWuYueColor =
+        typeof configJson.echartsWuYueColor === "string"
+          ? JSON.parse(configJson.echartsWuYueColor.replace(/'/g, '"'))
+          : configJson.echartsWuYueColor ?? [];
+
+      // 合并默认值
+      configJson = {
+        ...configJson,
+        borderColor,
+        echartsAnimationTime,
+        echartsWuYueColor,
+      };
+
+      visualizationData.value.config_json = configJson;
+    } catch (error) {
+      alert("请求失败:", error?.response?.data?.message);
+    } finally {
+      // 确保无论如何都解锁
+      requestLock.value = false;
     }
-
-    visualizationData.value.config_json = configJson
-  }
+  };
 
   return {
     visualizationData,
-    fetchVisualizationData
-  }
-})
+    fetchVisualizationData,
+  };
+});

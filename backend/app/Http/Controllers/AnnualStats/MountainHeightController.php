@@ -70,7 +70,7 @@ class MountainHeightController extends BaseController
     /**
      * 更新山脉高度
      */
-    public function updateMountainHeight(Request $request, int $heightId): JsonResponse
+    public function updateMountainHeight(MountainHeightRequest $request, int $heightId): JsonResponse
     {
         $result = $this->service->update('height', $heightId, $request->input('height'));
 

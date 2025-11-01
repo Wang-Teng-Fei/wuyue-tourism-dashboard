@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup>
 import Sidebar from '@/views/Layout/components/Sidebar.vue'
 import Header from '@/views/Layout/components/Header.vue'
 import { getAdmonInfo } from '@/api/admin'
@@ -42,9 +42,17 @@ adminInfo()
 
         <main class="layout-content">
           <div class="content-panel">
-            <Transition name="fade">
+            <router-view v-slot="{ Component }">
+              <transition
+                name="fade"
+                mode="out-in"
+              >
+                <component :is="Component" />
+              </transition>
+            </router-view>
+            <!-- <Transition name="fade">
               <router-view />
-            </Transition>
+            </Transition> -->
           </div>
         </main>
       </div>
@@ -124,36 +132,54 @@ adminInfo()
   }
 }
 
-.fade-enter-active,
-.fade-leave-active {
-  // transition: all 0.5s ease;
-  animation: active 1.5s forwards;
+// .fade-enter-active,
+// .fade-leave-active {
+//   // transition: all 0.5s ease;
+//   animation: active 1.5s forwards;
+// }
+
+// @keyframes active {
+//   0% {
+//     transform: translateY(15%);
+//     opacity: 0;
+//   }
+
+//   50% {
+//     transform: translateY(0%);
+//   }
+
+//   100% {
+//     opacity: 1;
+//   }
+// }
+.fade-enter-active {
+  animation: fade-in 0.5s ease;
 }
 
-@keyframes active {
+.fade-leave-active {
+  animation: fade-out 0.5s ease;
+}
+
+@keyframes fade-in {
   0% {
-    transform: translateY(15%);
+    transform: translateY(-40px);
     opacity: 0;
   }
-
-  50% {
-    transform: translateY(0%);
-  }
-
   100% {
+    transform: translateY(0);
     opacity: 1;
   }
 }
 
-// .fade-enter-from,
-// .fade-leave-to {
-//   transform: translateX(25%);
-//   opacity: 0;
-// }
+@keyframes fade-out {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+}
 
-// .fade-enter-to,
-// .fade-leave-from {
-//   transform: translateX(0%);
-//   opacity: 1;
-// }
 </style>

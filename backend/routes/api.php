@@ -19,7 +19,7 @@ Route::middleware([AdminMiddleware::class])->group(function () {
 //    ------------- 飞线图 -------------
     Route::prefix('/flyline-charts')->group(function () {
 //        获取飞线图名称列表
-        Route::get('/name', [FlylineChartController::class, 'getFlylineChartsNameList']);
+        Route::get('/name', [FlylineChartController::class, 'searchFlylineChartsNameList']);
 //        获取飞线图列表
         Route::get('/list', [FlylineChartController::class, 'getFlylineChartsList']);
 //        按名称查询飞线图
